@@ -29,8 +29,7 @@
     ],
     "node-red": {
         "nodes": {
-            "tak": "tak.js",
-            "tak2m": "tak.js"
+            "tak": "tak.js"
         }
     },
     "devDependencies": {
