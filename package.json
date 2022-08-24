@@ -1,0 +1,40 @@
+{
+    "name": "node-red-contrib-tak",
+    "version": "1.0.0b3",
+    "description": "Node-RED Nodes for parsing Cursor-On-Target messages from ATAK and other TAK Products.",
+    "license": "Apache-2.0",
+    "url": "https://github.com/ampledata/node-red-contrib-tak",
+    "author": {
+        "name": "Greg Albrecht",
+        "email": "oss@undef.net",
+        "url": "https://ampledata.org"
+    },
+    "homepage": "https://github.com/ampledata/node-red-contrib-tak",
+    "dependencies": {
+        "@vidterra/tak.js": "0.0.7",
+        "jshint": "^2.13.5",
+        "jslint": "^0.12.1",
+        "node-red": "^1.0.0"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/ampledata/node-red-contrib-tak"
+    },
+    "keywords": [
+        "node-red",
+        "cursor-on-target",
+        "cot",
+        "tak",
+        "atak"
+    ],
+    "node-red": {
+        "nodes": {
+            "tak": "tak.js",
+            "tak2m": "tak.js"
+        }
+    },
+    "devDependencies": {
+        "eslint": "^5.16.0",
+        "eslint-config-google": "^0.11.0"
+    }
+}
