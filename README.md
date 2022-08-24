@@ -1,13 +1,13 @@
 node-red-contrib-tak
 ====================
 
-![ATAK EUD in Worldmap](https://github.com/ampledata/node-red-contrib-tak/master/docs/atak.png)
+![ATAK EUD in Worldmap](https://github.com/ampledata/node-red-contrib-tak/raw/main/docs/atak.png)
 
 [Node-RED](https://www.nodered.org) Nodes for connecting to [TAK Products](https://tak.gov), including ATAK, WinTAK,
 iTAK, and other software that speaks Cursor-On-Target, as both XML and Protobuf. Includes nodes for parsing TAK messages, 
 and serializing TAK messages as [Node-RED Worldmap](https://github.com/dceejay/RedMap) JSON.
 
-![TAK2Worldmap in a Node-RED Flow](https://github.com/ampledata/node-red-contrib-tak/master/docs/flow.png)
+![TAK2Worldmap in a Node-RED Flow](https://github.com/ampledata/node-red-contrib-tak/raw/main/docs/flow.png)
 
 Install
 -------
