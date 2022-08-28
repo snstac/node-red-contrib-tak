@@ -9,6 +9,8 @@ and serializing TAK messages as [Node-RED Worldmap](https://github.com/dceejay/R
 
 ![TAK2Worldmap in a Node-RED Flow](https://github.com/ampledata/node-red-contrib-tak/raw/main/docs/flow.png)
 
+New in version 2.0: Supports decoding & encoding CoT.
+
 Install
 -------
 

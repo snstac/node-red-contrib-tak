@@ -25,9 +25,19 @@ limitations under the License.
 /* jslint node: true */
 /* jslint white: true */
 
-module.exports = function(RED) {
-  const makeTAKNode = require('./cot');
-  const makeTAK2WMNode = require('./wm');
-  makeTAKNode(RED);
-  makeTAK2WMNode(RED);
+const {handlePayload} = require('./cotLib');
+
+const makeTAKNode = RED => {
+  function tak (config) {
+    RED.nodes.createNode(this, config);
+    let node = this;
+
+    node.on("input", (msg) => {
+        msg.payload = handlePayload(msg.payload);
+        node.send(msg);
+    });
+  }
+  RED.nodes.registerType("tak", tak);
 };
+
+module.exports = makeTAKNode;

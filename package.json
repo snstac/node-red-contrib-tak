@@ -1,6 +1,6 @@
 {
     "name": "node-red-contrib-tak",
-    "version": "1.0.1",
+    "version": "2.0.0",
     "description": "Node-RED Nodes for parsing Cursor-On-Target messages from ATAK and other TAK Products.",
     "license": "Apache-2.0",
     "url": "https://github.com/ampledata/node-red-contrib-tak",
@@ -28,9 +28,13 @@
         "atak"
     ],
     "node-red": {
+        "version": ">=2.0.0",
         "nodes": {
             "tak": "tak.js"
         }
+    },
+    "engines": {
+        "node": ">=12.0.0"
     },
     "devDependencies": {
         "eslint": "^5.16.0",
