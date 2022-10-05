@@ -1,3 +1,6 @@
+## 2.1.1
+- Fixed conditional in wintak protobuf logic.
+
 ## 2.1.0
 
 - Several bug fixes for input CoT parsing. You should now be able to pipe the TAK
