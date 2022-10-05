@@ -1,18 +1,75 @@
 [
-    {
-        "id": "0183406e818e1612",
-        "type": "debug",
-        "z": "99b2723492186a56",
-        "name": "debug 25",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "false",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 580,
-        "y": 120,
-        "wires": []
-    }
+  {
+    "id": "99b2723492186a56",
+    "type": "tab",
+    "label": "Example CoT XML to Worldmap object",
+    "disabled": false,
+    "info": "",
+    "env": []
+  },
+  {
+    "id": "b7cfd79090401f74",
+    "type": "inject",
+    "z": "99b2723492186a56",
+    "name": "",
+    "props": [],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "x": 130,
+    "y": 120,
+    "wires": [["c75c7c4abf3e7a78"]]
+  },
+  {
+    "id": "c75c7c4abf3e7a78",
+    "type": "function",
+    "z": "99b2723492186a56",
+    "name": "CoT XML",
+    "func": "/*\nThis Node contains an example Cursor on Target XML payload.\n*/\n\nmsg.payload = '<?xml version=\"1.0\" encoding=\"UTF-8\"?><event version=\"2.0\" time=\"2022-10-05T05:55:44.464Z\" start=\"2022-10-05T05:55:44.464Z\" stale=\"2022-10-05T06:04:04.464Z\" type=\"a-u-G\" uid=\"UID-12345\" how=\"m-r\"><point lat=\"1.2\" lon=\"-2.3\" hae=\"999999.0\" le=\"999999.0\" ce=\"999999.0\"/></event>';\n\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 260,
+    "y": 120,
+    "wires": [["0342c2e7389e57bf"]]
+  },
+  {
+    "id": "0183406e818e1612",
+    "type": "debug",
+    "z": "99b2723492186a56",
+    "name": "debug 25",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "false",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 580,
+    "y": 120,
+    "wires": []
+  },
+  {
+    "id": "b75c908cb03227e8",
+    "type": "comment",
+    "z": "99b2723492186a56",
+    "name": "Example CoT XML to Worldmap object",
+    "info": "This flows shows an example Cursor on Target XML to Worldmap object using the TAK2WM Node.",
+    "x": 210,
+    "y": 80,
+    "wires": []
+  },
+  {
+    "id": "0342c2e7389e57bf",
+    "type": "tak2wm",
+    "z": "99b2723492186a56",
+    "name": "TAK2Worldmap",
+    "x": 420,
+    "y": 120,
+    "wires": [["0183406e818e1612"]]
+  }
 ]

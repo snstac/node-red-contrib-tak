@@ -47,7 +47,8 @@ Source:: https://github.com/ampledata/node-red-contrib-tak
   </dl>
 
   <h4>Example Input CoT Object:</h4>
-  <pre>{
+  <pre>
+{
   'event': {
       '_attributes': {
           'version': '2.0',
@@ -68,7 +69,8 @@ Source:: https://github.com/ampledata/node-red-contrib-tak
           }
       }
   }
-}</pre>
+}</pre
+  >
 
   <h3>Outputs</h3>
   <dl class="message-properties">
@@ -77,7 +79,9 @@ Source:: https://github.com/ampledata/node-red-contrib-tak
   </dl>
 
   <h4>Example Output CoT XML:</h4>
-  <pre>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;event version=&quot;2.0&quot; time=&quot;2022-10-05T05:11:47.992Z&quot; start=&quot;2022-10-05T05:11:47.992Z&quot; stale=&quot;2022-10-05T05:20:07.992Z&quot; type=&quot;a-u-G&quot; uid=&quot;UID-12345&quot; how=&quot;m-r&quot;&gt;&lt;point lat=&quot;1.2&quot; lon=&quot;-2.3&quot; hae=&quot;999999.0&quot; le=&quot;999999.0&quot; ce=&quot;999999.0&quot;/&gt;&lt;/event&gt;</pre>
+  <pre>
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;event version=&quot;2.0&quot; time=&quot;2022-10-05T05:11:47.992Z&quot; start=&quot;2022-10-05T05:11:47.992Z&quot; stale=&quot;2022-10-05T05:20:07.992Z&quot; type=&quot;a-u-G&quot; uid=&quot;UID-12345&quot; how=&quot;m-r&quot;&gt;&lt;point lat=&quot;1.2&quot; lon=&quot;-2.3&quot; hae=&quot;999999.0&quot; le=&quot;999999.0&quot; ce=&quot;999999.0&quot;/&gt;&lt;/event&gt;</pre
+  >
 </script>
 
 <script type="text/javascript">
@@ -110,7 +114,8 @@ Source:: https://github.com/ampledata/node-red-contrib-tak
   <p>
     Serializes
     <a href="https://www.tak.gov">Team Awareness Kit (TAK)</a> Cursor-on-Target
-    (CoT) as <a href="https://github.com/dceejay/RedMap">Node-RED Worldmap</a> objects.
+    (CoT) as
+    <a href="https://github.com/dceejay/RedMap">Node-RED Worldmap</a> objects.
   </p>
 
   <h3>Input</h3>
@@ -120,20 +125,23 @@ Source:: https://github.com/ampledata/node-red-contrib-tak
   </dl>
 
   <h4>Example Input CoT XML:</h4>
-  <pre>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;event version=&quot;2.0&quot; time=&quot;2022-10-05T05:11:47.992Z&quot; start=&quot;2022-10-05T05:11:47.992Z&quot; stale=&quot;2022-10-05T05:20:07.992Z&quot; type=&quot;a-u-G&quot; uid=&quot;UID-12345&quot; how=&quot;m-r&quot;&gt;&lt;point lat=&quot;1.2&quot; lon=&quot;-2.3&quot; hae=&quot;999999.0&quot; le=&quot;999999.0&quot; ce=&quot;999999.0&quot;/&gt;&lt;/event&gt;</pre>
+  <pre>
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;event version=&quot;2.0&quot; time=&quot;2022-10-05T05:11:47.992Z&quot; start=&quot;2022-10-05T05:11:47.992Z&quot; stale=&quot;2022-10-05T05:20:07.992Z&quot; type=&quot;a-u-G&quot; uid=&quot;UID-12345&quot; how=&quot;m-r&quot;&gt;&lt;point lat=&quot;1.2&quot; lon=&quot;-2.3&quot; hae=&quot;999999.0&quot; le=&quot;999999.0&quot; ce=&quot;999999.0&quot;/&gt;&lt;/event&gt;</pre
+  >
 
+  <h3>Outputs</h3>
+  <dl class="message-properties">
+    <dt>payload <span class="property-type">object</span></dt>
+    <dd>Worldmap object from parsed CoT XML.</dd>
+  </dl>
 
-<h3>Outputs</h3>
-<dl class="message-properties">
-  <dt>payload <span class="property-type">object</span></dt>
-  <dd>Worldmap object from parsed CoT XML.</dd>
-</dl>
-
-<h4>Example Output:</h4>
-<pre>{
+  <h4>Example Output:</h4>
+  <pre>
+{
   "name": "UID-12345",
   "lat": 1.2,
   "lon": -2.3,
   "SIDC": "suGp-----------"
-}</pre>
+}</pre
+  >
 </script>

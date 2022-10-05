@@ -1,7 +1,7 @@
-2.1.0
------
-- Several bug fixes for input CoT parsing. You should now be able to pipe the TAK 
-Node directly into the TAK2WM node.
+## 2.1.0
+
+- Several bug fixes for input CoT parsing. You should now be able to pipe the TAK
+  Node directly into the TAK2WM node.
 
 - Automatic addition of ?xml header to incoming CoT (if missing).
 
