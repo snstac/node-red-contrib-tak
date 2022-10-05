@@ -63,38 +63,36 @@ const makeTAK2WMNode = RED => {
             }
 
             detail = event.detail;
-            if (detail === undefined) {
-                return;
+            if (detail) {
+                contact = detail.contact;
+                if (contact) {
+                    contact = contact._attributes;
+                }
+
+                status = detail.status;
+                if (status) {
+                    status = status._attributes;
+                }
+
+                group = detail.__group;
+                if (group) {
+                    group = group._attributes;
+                }
+
+                track = detail.track;
+                if (track) {
+                    track = track._attributes;
+                }
+
+                takv = detail.takv;
+                if (takv) {
+                    takv = takv._attributes;
+                }
             }
 
             cotType = event._attributes.type;
             uid = event._attributes.uid;
             point = event.point._attributes;
-
-            contact = detail.contact;
-            if (contact) {
-                contact = contact._attributes;
-            }
-
-            status = detail.status;
-            if (status) {
-                status = status._attributes;
-            }
-
-            group = detail.__group;
-            if (group) {
-                group = group._attributes;
-            }
-
-            track = detail.track;
-            if (track) {
-                track = track._attributes;
-            }
-
-            takv = detail.takv;
-            if (takv) {
-                takv = takv._attributes;
-            }
 
             lastUpdate = new Date(event._attributes.time).toLocaleString();
         } else if (TAKFormat === "Protobuf") {
@@ -187,7 +185,10 @@ const makeTAK2WMNode = RED => {
         }
 
         let tooltip;
-        let remarks = detail.remarks;
+        let remarks;
+        if (detail) {
+            remarks = detail.remarks;
+        }
         if (remarks) {
             remarks = remarks._text;
             tooltip = remarks;

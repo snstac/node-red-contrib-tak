@@ -74,6 +74,7 @@ const decodeCOT = message => {
 
     let takFormat;
     let payload;
+    let error;
 
     if (bufferMessage[0] === 191) { // TAK message format 0xbf
         const trimmedBuffer = bufferMessage.slice(3, bufferMessage.length); // remove tak message header from content
@@ -90,10 +91,17 @@ const decodeCOT = message => {
             payload = cot.xml2js(message); // try parsing raw XML
         } catch (e) {
             console.error("Failed to parse message", e);
+            error = e;
         }
     }
 
+    if (!payload) {
+        payload = {}
+    }
+
     payload.TAKFormat = takFormat;
+    payload.error = error;
+
     return payload;
 };
 
@@ -110,9 +118,12 @@ const handlePayload = payload => {
     let newPayload;
 
     const plType = typeof payload;
-
     if (plType === 'object') {
-        newPayload = encodeCOT(payload);
+        if (typeof payload[0] === 'number') {
+            newPayload = decodeCOT(payload);
+        } else {
+            newPayload = encodeCOT(payload);
+        }
     } else {
         newPayload = decodeCOT(payload);
     }
