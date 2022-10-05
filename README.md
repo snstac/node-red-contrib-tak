@@ -1,18 +1,16 @@
-node-red-contrib-tak
-====================
+# node-red-contrib-tak
 
 ![ATAK EUD in Worldmap](https://github.com/ampledata/node-red-contrib-tak/raw/main/docs/atak.png)
 
 [Node-RED](https://www.nodered.org) Nodes for connecting to [TAK Products](https://tak.gov), including ATAK, WinTAK,
-iTAK, and other software that speaks Cursor-On-Target, as both XML and Protobuf. Includes nodes for parsing TAK messages, 
+iTAK, and other software that speaks Cursor-On-Target, as both XML and Protobuf. Includes nodes for parsing TAK messages,
 and serializing TAK messages as [Node-RED Worldmap](https://github.com/dceejay/RedMap) JSON.
 
 ![TAK2Worldmap in a Node-RED Flow](https://github.com/ampledata/node-red-contrib-tak/raw/main/docs/flow.png)
 
 New in version 2.0: Supports decoding & encoding CoT.
 
-Install
--------
+## Install
 
 Run the following command in your Node-RED user directory - typically `~/.node-red`
 
@@ -25,13 +23,11 @@ npm install node-red-contrib-tak
 
 Greg Albrecht W2GMD <oss@undef.net>
 
-
 # Copyright
 
 node-red-contrib-tak is Copyright 2022 Greg Albrecht
 
 @vidterra/tak.js is Copyright 2021 Vidterra
-
 
 # License
 
@@ -40,8 +36,8 @@ node-red-contrib-tak is licensed under the Apache License, Version 2.0:
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at:
-    
-  http://www.apache.org/licenses/LICENSE-2.0
+
+http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,

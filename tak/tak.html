@@ -1,0 +1,139 @@
+<!--
+TAK Node-RED Nodes.
+
+Author:: Greg Albrecht W2GMD <oss@undef.net>
+Copyright:: Copyright 2022 Greg Albrecht
+License:: Apache License, Version 2.0
+Source:: https://github.com/ampledata/node-red-contrib-tak
+-->
+
+<script type="text/javascript">
+  RED.nodes.registerType("tak", {
+    category: "parser",
+    color: "#a6bbcf",
+    inputs: 1,
+    outputs: 1,
+    icon: "tak.png",
+    defaults: {
+      name: { value: "TAK" },
+    },
+    label: function () {
+      return this.name || "TAK";
+    },
+    labelStyle: function () {
+      return this.name ? "node_label_italic" : "";
+    },
+  });
+</script>
+
+<script type="text/html" data-template-name="tak">
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+    <input type="text" id="node-input-name" placeholder="Name" />
+  </div>
+</script>
+
+<script type="text/html" data-help-name="tak">
+  <p>
+    A parser for
+    <a href="https://www.tak.gov">Team Awareness Kit (TAK)</a> Cursor-on-Target
+    (CoT) XML & Protobuf messages.
+  </p>
+
+  <h3>Input</h3>
+  <dl class="message-properties">
+    <dt>payload <span class="property-type">object</span></dt>
+    <dd>CoT Attribtues as Javascript Object / JSON.</dd>
+  </dl>
+
+  <h4>Example Input CoT Object:</h4>
+  <pre>{
+  'event': {
+      '_attributes': {
+          'version': '2.0',
+          'time': new Date(Date.now()).toISOString(),
+          'start': new Date(Date.now()).toISOString(),
+          'stale': new Date(Date.now() + 500000).toISOString(),
+          'type': 'a-u-G',
+          'uid': 'UID-12345',
+          'how': 'm-r'
+      },
+      'point': {
+          '_attributes': {
+              'lat': '1.2',
+              'lon': '-2.3',
+              'hae': "999999.0",
+              'le': "999999.0",
+              'ce': "999999.0",
+          }
+      }
+  }
+}</pre>
+
+  <h3>Outputs</h3>
+  <dl class="message-properties">
+    <dt>payload <span class="property-type">string</span></dt>
+    <dd>CoT XML from parsed CoT Object.</dd>
+  </dl>
+
+  <h4>Example Output CoT XML:</h4>
+  <pre>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;event version=&quot;2.0&quot; time=&quot;2022-10-05T05:11:47.992Z&quot; start=&quot;2022-10-05T05:11:47.992Z&quot; stale=&quot;2022-10-05T05:20:07.992Z&quot; type=&quot;a-u-G&quot; uid=&quot;UID-12345&quot; how=&quot;m-r&quot;&gt;&lt;point lat=&quot;1.2&quot; lon=&quot;-2.3&quot; hae=&quot;999999.0&quot; le=&quot;999999.0&quot; ce=&quot;999999.0&quot;/&gt;&lt;/event&gt;</pre>
+</script>
+
+<script type="text/javascript">
+  RED.nodes.registerType("tak2wm", {
+    category: "location",
+    color: "#a6bbcf",
+    inputs: 1,
+    outputs: 1,
+    icon: "tak.png",
+    defaults: {
+      name: { value: "TAK2Worldmap" },
+    },
+    label: function () {
+      return this.name || "TAK2Worldmap";
+    },
+    labelStyle: function () {
+      return this.name ? "node_label_italic" : "";
+    },
+  });
+</script>
+
+<script type="text/html" data-template-name="tak2wm">
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+    <input type="text" id="node-input-name" placeholder="Name" />
+  </div>
+</script>
+
+<script type="text/html" data-help-name="tak2wm">
+  <p>
+    Serializes
+    <a href="https://www.tak.gov">Team Awareness Kit (TAK)</a> Cursor-on-Target
+    (CoT) as <a href="https://github.com/dceejay/RedMap">Node-RED Worldmap</a> objects.
+  </p>
+
+  <h3>Input</h3>
+  <dl class="message-properties">
+    <dt>payload <span class="property-type">string</span></dt>
+    <dd>CoT XML</dd>
+  </dl>
+
+  <h4>Example Input CoT XML:</h4>
+  <pre>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;event version=&quot;2.0&quot; time=&quot;2022-10-05T05:11:47.992Z&quot; start=&quot;2022-10-05T05:11:47.992Z&quot; stale=&quot;2022-10-05T05:20:07.992Z&quot; type=&quot;a-u-G&quot; uid=&quot;UID-12345&quot; how=&quot;m-r&quot;&gt;&lt;point lat=&quot;1.2&quot; lon=&quot;-2.3&quot; hae=&quot;999999.0&quot; le=&quot;999999.0&quot; ce=&quot;999999.0&quot;/&gt;&lt;/event&gt;</pre>
+
+
+<h3>Outputs</h3>
+<dl class="message-properties">
+  <dt>payload <span class="property-type">object</span></dt>
+  <dd>Worldmap object from parsed CoT XML.</dd>
+</dl>
+
+<h4>Example Output:</h4>
+<pre>{
+  "name": "UID-12345",
+  "lat": 1.2,
+  "lon": -2.3,
+  "SIDC": "suGp-----------"
+}</pre>
+</script>

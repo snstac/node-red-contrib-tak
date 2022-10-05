@@ -31,23 +31,25 @@ const { cot, proto } = require("@vidterra/tak.js");
 Converts Cursor-On-Target Event 'Types' to NATO symbol identification coding (SIDC).
 */
 let cotType2SIDC = (cotType) => {
-    /* Extract the Type and Affiliation. */
-    let et = cotType.split("-");
-    let affil = et[1];
+  /* Extract the Type and Affiliation. */
+  let et = cotType.split("-");
+  let affil = et[1];
 
-    /* There is no '.' notation in SIDC, so mark Neutral. */
-    if (affil.includes(".")) {
-        affil = "n";
-    }
+  /* There is no '.' notation in SIDC, so mark Neutral. */
+  if (affil.includes(".")) {
+    affil = "n";
+  }
 
-    /* Ram the COT Event Type portions into a SIDR Type */
-    let SIDC = `s${affil}${et[2]}p${et[3] || "-"}${et[4] || "-"}${et[5] || "-"}--------`;
+  /* Ram the COT Event Type portions into a SIDR Type */
+  let SIDC = `s${affil}${et[2]}p${et[3] || "-"}${et[4] || "-"}${
+    et[5] || "-"
+  }--------`;
 
-    return SIDC;
+  return SIDC;
 };
 
-const decodeCOT = message => {
-    /* Borrowed from @vidterra/tak.js/scripts/parse.js
+const decodeCOT = (message) => {
+  /* Borrowed from @vidterra/tak.js/scripts/parse.js
     MIT License
   
     Copyright (c) 2021 Vidterra
@@ -70,66 +72,77 @@ const decodeCOT = message => {
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
     */
-    const bufferMessage = typeof message !== Buffer ? Buffer.from(message, "hex") : message;
+  const bufferMessage =
+    typeof message !== Buffer ? Buffer.from(message, "hex") : message;
 
-    let takFormat;
-    let payload;
-    let error;
+  let takFormat;
+  let payload;
+  let error;
 
-    if (bufferMessage[0] === 191) { // TAK message format 0xbf
-        const trimmedBuffer = bufferMessage.slice(3, bufferMessage.length); // remove tak message header from content
-        if (bufferMessage[1] === 0) { // is COT XML
-            takFormat = "TAK COT XML";
-            payload = cot.xml2js(trimmedBuffer); // try parsing raw XML
-        } else if (bufferMessage[1] === 1) { // is Protobuf
-            takFormat = "Protobuf";
-            payload = proto.proto2js(trimmedBuffer);
-        }
-    } else { // not TAK message format
-        try {
-            takFormat = "COT XML";
-            payload = cot.xml2js(message); // try parsing raw XML
-        } catch (e) {
-            console.error("Failed to parse message", e);
-            error = e;
-        }
+  if (bufferMessage[0] === 191) {
+    // TAK message format 0xbf
+    const trimmedBuffer = bufferMessage.slice(3, bufferMessage.length); // remove tak message header from content
+    if (bufferMessage[1] === 0) {
+      // is COT XML
+      takFormat = "TAK COT XML";
+      payload = cot.xml2js(trimmedBuffer); // try parsing raw XML
+    } else if (bufferMessage[1] === 1) {
+      // is Protobuf
+      takFormat = "Protobuf";
+      payload = proto.proto2js(trimmedBuffer);
     }
-
-    if (!payload) {
-        payload = {}
+  } else {
+    // not TAK message format
+    try {
+      takFormat = "COT XML";
+      payload = cot.xml2js(message); // try parsing raw XML
+    } catch (e) {
+      console.error("Failed to parse message", e);
+      error = e;
     }
+  }
 
-    payload.TAKFormat = takFormat;
-    payload.error = error;
+  if (!payload) {
+    payload = {};
+  }
 
-    return payload;
+  payload.TAKFormat = takFormat;
+  payload.error = error;
+
+  return payload;
 };
 
-
-const encodeCOT = message => {
-    return cot.js2xml(message);
+/*
+Serializses (encodes) CoT Javascript Object as CoT XML.
+*/
+const encodeCOT = (message) => {
+  if (!message._declaration) {
+    message = {
+      _declaration: { _attributes: { version: "1.0", encoding: "UTF-8" } },
+      ...message,
+    };
+  }
+  return cot.js2xml(message);
 };
-
 
 /*
 Parses Cursor-On-Target plain-text XML or Protobuf into Node.js JSON.
 */
-const handlePayload = payload => {
-    let newPayload;
+const handlePayload = (payload) => {
+  let newPayload;
 
-    const plType = typeof payload;
-    if (plType === 'object') {
-        if (typeof payload[0] === 'number') {
-            newPayload = decodeCOT(payload);
-        } else {
-            newPayload = encodeCOT(payload);
-        }
+  const plType = typeof payload;
+  if (plType === "object") {
+    if (typeof payload[0] === "number") {
+      newPayload = decodeCOT(payload);
     } else {
-        newPayload = decodeCOT(payload);
+      newPayload = encodeCOT(payload);
     }
+  } else {
+    newPayload = decodeCOT(payload);
+  }
 
-    return newPayload;
+  return newPayload;
 };
 
-
-module.exports = {handlePayload, cotType2SIDC};
+module.exports = { handlePayload, cotType2SIDC };

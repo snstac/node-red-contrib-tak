@@ -20,10 +20,13 @@ publish:
 lint: jshint eslint jslint
 
 jshint:
-	jshint *.js
+	jshint tak/*.js
 
 eslint:
-	eslint *.js
+	eslint tak/*.js
 
 jslint:
-	jslint *.js
+	jslint tak/*.js
+
+prettier:
+	npx prettier --write .

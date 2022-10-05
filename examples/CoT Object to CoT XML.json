@@ -1,0 +1,75 @@
+[
+  {
+    "id": "dbb77299c3817c75",
+    "type": "tab",
+    "label": "Example CoT Object to CoT XML",
+    "disabled": false,
+    "info": "",
+    "env": []
+  },
+  {
+    "id": "0d1c5a1a970cf6af",
+    "type": "inject",
+    "z": "dbb77299c3817c75",
+    "name": "",
+    "props": [],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "x": 130,
+    "y": 120,
+    "wires": [["e31a0d5afc3f9b6b"]]
+  },
+  {
+    "id": "e31a0d5afc3f9b6b",
+    "type": "function",
+    "z": "dbb77299c3817c75",
+    "name": "CoT Object",
+    "func": "/*\nThis Node contains an example Cursor on Target payload as a Javascript Object.\n*/\n\nmsg.payload = {\n    'event': {\n        '_attributes': {\n            'version': '2.0',\n            'time': new Date(Date.now()).toISOString(),\n            'start': new Date(Date.now()).toISOString(),\n            'stale': new Date(Date.now() + 500000).toISOString(),\n            'type': 'a-u-G',\n            'uid': 'UID-12345',\n            'how': 'm-r'\n        },\n        'point': {\n            '_attributes': {\n                'lat': '1.2',\n                'lon': '-2.3',\n                'hae': \"999999.0\",\n                'le': \"999999.0\",\n                'ce': \"999999.0\",\n            }\n        }\n    }\n};\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 270,
+    "y": 120,
+    "wires": [["40098d26ae186af7"]]
+  },
+  {
+    "id": "40098d26ae186af7",
+    "type": "tak",
+    "z": "dbb77299c3817c75",
+    "name": "TAK",
+    "x": 410,
+    "y": 120,
+    "wires": [["92781dc83dc6f7ef"]]
+  },
+  {
+    "id": "92781dc83dc6f7ef",
+    "type": "debug",
+    "z": "dbb77299c3817c75",
+    "name": "debug 25",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "false",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 540,
+    "y": 120,
+    "wires": []
+  },
+  {
+    "id": "35c8d2752a6b478b",
+    "type": "comment",
+    "z": "dbb77299c3817c75",
+    "name": "Example CoT Object to CoT XML",
+    "info": "This flows shows an example Cursor on Target Object to Cursor on Target XML serialization using the TAK Node.",
+    "x": 190,
+    "y": 80,
+    "wires": []
+  }
+]
