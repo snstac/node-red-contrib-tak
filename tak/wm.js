@@ -145,8 +145,12 @@ const makeTAK2WMNode = (RED) => {
         revisions of "TAK Protocol Version 1".
 
         1. Contact Protobuf message: https://github.com/deptofdefense/AndroidTacticalAssaultKit-CIV/blob/master/commoncommo/core/impl/protobuf/contact.proto
-        */
-      if (takv && takv.platform.toLowerCase().includes("wintak")) {
+      */
+      if (
+        takv &&
+        takv.platform &&
+        takv.platform.toLowerCase().includes("wintak")
+      ) {
         let xmlDetail = cot.xml2js(detail.xmlDetail);
         if (xmlDetail) {
           contact = xmlDetail._attributes;
