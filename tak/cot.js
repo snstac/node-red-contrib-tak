@@ -1,13 +1,8 @@
 #!/usr/bin/env node
-/*
-TAK Node-RED Nodes.
+/* TAK Node-RED Nodes.
 
-Author:: Greg Albrecht W2GMD <oss@undef.net>
-Copyright:: Copyright 2022 Greg Albrecht
-License:: Apache License, Version 2.0
-Source:: https://github.com/ampledata/node-red-contrib-aprs
-
-Copyright 2022 Greg Albrecht
+Copyright:: Copyright 2023 Greg Albrecht
+Source:: https://github.com/ampledata/node-red-contrib-tak
 
 Licensed under the Apache License, Version 2.0 (the 'License');
 you may not use this file except in compliance with the License.
@@ -33,8 +28,24 @@ const makeTAKNode = (RED) => {
     let node = this;
 
     node.on("input", (msg) => {
-      msg.payload = handlePayload(msg.payload);
-      node.send(msg);
+      node.status({fill:"green", shape:"dot", text:"RX"});
+      let payloads = handlePayload(msg.payload);
+      let msg0 = {
+        "payload": payloads[0],
+        "_session": msg._session
+      }
+      let msg1 = {
+        "payload": payloads[1],
+        "_session": msg._session
+      }
+      let msg2 = {
+        "payload": payloads[2],
+        "_session": msg._session
+      }
+      node.send([msg0, msg1, msg2])
+
+      node.status({fill:"blue", shape:"ring", text:"Idle"});
+
     });
   }
   RED.nodes.registerType("tak", tak);

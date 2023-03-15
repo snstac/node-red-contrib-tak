@@ -1,10 +1,24 @@
 <!--
-TAK Node-RED Nodes.
+/* TAK Node-RED Nodes.
 
-Author:: Greg Albrecht W2GMD <oss@undef.net>
-Copyright:: Copyright 2022 Greg Albrecht
-License:: Apache License, Version 2.0
+Copyright:: Copyright 2023 Greg Albrecht
 Source:: https://github.com/ampledata/node-red-contrib-tak
+
+Licensed under the Apache License, Version 2.0 (the 'License');
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an 'AS IS' BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+/* jslint node: true */
+/* jslint white: true */
 -->
 
 <script type="text/javascript">
@@ -12,8 +26,10 @@ Source:: https://github.com/ampledata/node-red-contrib-tak
     category: "parser",
     color: "#a6bbcf",
     inputs: 1,
-    outputs: 1,
+    outputs: 3,
     icon: "tak.png",
+    inputLabels: "CoT as a Buffer, String or Object.",
+    outputLabels: ["CoT XML or JSON", "Multicast Protobuf", "Stream Protobuf"],
     defaults: {
       name: { value: "TAK" },
     },
@@ -35,18 +51,24 @@ Source:: https://github.com/ampledata/node-red-contrib-tak
 
 <script type="text/html" data-help-name="tak">
   <p>
-    A parser for
-    <a href="https://www.tak.gov">Team Awareness Kit (TAK)</a> Cursor-on-Target
-    (CoT) XML & Protobuf messages.
+    A encoder & decoder for
+    <a href="https://www.tak.gov">Team Awareness Kit (TAK)</a> Cursor on Target
+    (CoT) messages. Supports plain XML ("'Traditional' TAK Protocol Version 0"), 
+    Multicast ("mesh SA") & Stream Protobuf messages ("TAK Protocol Version 1").
   </p>
 
   <h3>Input</h3>
   <dl class="message-properties">
-    <dt>payload <span class="property-type">object</span></dt>
-    <dd>CoT Attribtues as Javascript Object / JSON.</dd>
+    <dt>payload <span class="property-type">Buffer, String or Object</span></dt>
+    <dd>One of:</dd>
+    <ol>
+      <li>Buffer: Raw output from a network socket, for example, tcp-in or udp-in.</li>
+      <li>String: Plain XML CoT as a String.</li>
+      <li>Object: A JavaScript-native Object containing CoT details.</li>
+    </ol>
   </dl>
 
-  <h4>Example Input CoT Object:</h4>
+  <h4>Example Input CoT JavaScript-native Object:</h4>
   <pre>
 {
   'event': {
@@ -73,10 +95,29 @@ Source:: https://github.com/ampledata/node-red-contrib-tak
   >
 
   <h3>Outputs</h3>
-  <dl class="message-properties">
-    <dt>payload <span class="property-type">string</span></dt>
-    <dd>CoT XML from parsed CoT Object.</dd>
-  </dl>
+  This node hast 3 different outputs:
+  <ol>
+    <li>
+      <dl class="message-properties">
+        <dt>payload <span class="property-type">String or Object</span></dt>
+        <dd>If input is JSON, CoT as an XML String.</dd>
+        <dd>If input is a String, CoT as JSON.</dd>
+        <dd>If input is a Buffer, CoT as JSON.</dd>
+      </dl>
+    </li>
+    <li>
+      <dl class="message-properties">
+        <dt>payload <span class="property-type">Buffer</span></dt>
+        <dd>If input is JSON, CoT as Multicast Protobuf format.</dd>
+      </dl>
+    </li>
+    <li>
+      <dl class="message-properties">
+        <dt>payload <span class="property-type">Buffer</span></dt>
+        <dd>If input is JSON, CoT as Stream Protobuf format.</dd>
+      </dl>
+    </li>
+  </ol>
 
   <h4>Example Output CoT XML:</h4>
   <pre>

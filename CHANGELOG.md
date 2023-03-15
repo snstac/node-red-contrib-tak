@@ -1,3 +1,6 @@
+## 2.2.0
+- Added protobuf output support via additional second node output.
+
 ## 2.1.1
 - Fixed conditional in wintak protobuf logic.
 
