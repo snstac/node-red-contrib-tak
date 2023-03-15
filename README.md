@@ -8,6 +8,11 @@ generating TAK messages from JSON, and serializing TAK messages as [Node-RED Wor
 
 ![TAK2Worldmap in a Node-RED Flow](https://github.com/ampledata/node-red-contrib-tak/raw/main/docs/flow.png)
 
+## Tutorial Videos
+
+* [Node-RED: JSON to Cursor on Target](https://www.youtube.com/watch?v=5i-y3Nc01Hs)
+* [Node-RED TAK on Windows](https://www.youtube.com/watch?v=1mHphHhX4lk)
+* [ACT Emergency Services Agency incidents into ATAK using Node-RED](https://www.youtube.com/watch?v=1xDQmRZAtFo)
 
 ## Install
 
