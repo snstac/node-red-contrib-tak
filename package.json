@@ -12,7 +12,10 @@
   "homepage": "https://github.com/ampledata/node-red-contrib-tak",
   "dependencies": {
     "@vidterra/tak.js": "0.0.8",
+    "mocha": "^10.2.0",
     "node-red": "^2.0.0",
+    "node-red-node-test-helper": "^0.3.0",
+    "nyc": "^15.1.0",
     "varint": "^6.0.0"
   },
   "repository": {
@@ -42,5 +45,9 @@
     "jslint": "^0.12.1",
     "node-red-dev": "^0.1.5",
     "prettier": "2.8.4"
+  },
+  "scripts": {
+    "start": "node-red",
+    "test": "nyc mocha --exit 'test/**spec.js'"
   }
 }

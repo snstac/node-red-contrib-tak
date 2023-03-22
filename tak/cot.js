@@ -29,7 +29,9 @@ const makeTAKNode = (RED) => {
 
     node.on("input", (msg) => {
       node.status({fill:"green", shape:"dot", text:"RX"});
+
       let payloads = handlePayload(msg.payload);
+
       let msg0 = {
         "payload": payloads[0],
         "_session": msg._session
@@ -42,7 +44,9 @@ const makeTAKNode = (RED) => {
         "payload": payloads[2],
         "_session": msg._session
       }
-      node.send([msg0, msg1, msg2])
+      let newMsgs = [msg0, msg1, msg2]
+
+      node.send(newMsgs)
 
       node.status({fill:"blue", shape:"ring", text:"Idle"});
 

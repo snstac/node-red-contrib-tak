@@ -20,8 +20,15 @@ limitations under the License.
 /* jslint node: true */
 /* jslint white: true */
 
+const xml2js = require('xml2js');
+
 const { cot, proto } = require("@vidterra/tak.js");
 const { encode, decode } = require("varint");
+
+const TAK_MAGICBYTE = 191  // 0xBF
+const TAK_PROTO_VER = 1
+const MAGIC_ROOT = "XXSNSXX"
+const MCAST_HEADER = Buffer.from([TAK_MAGICBYTE, TAK_PROTO_VER, TAK_MAGICBYTE]);
 
 /*
 Converts Cursor-On-Target Event 'Types' to NATO symbol identification coding (SIDC).
@@ -54,60 +61,75 @@ TL;DR:
   - Stream Protobuf is: 191 <payload-len-as-varint> <payload>
 
 */
-const decodeCOT = (message) => {
-  const bufferMessage =
-    typeof message !== Buffer ? Buffer.from(message, "hex") : message;
+const decodeCOT = (payload) => {
+  const bufferPl =
+    typeof payload !== Buffer ? Buffer.from(payload, "hex") : payload;
 
-  let takFormat;
-  let payload;
+  let takFormat = "Unknown";
+  let newPayload;
   let error;
 
-  // TAK message format for Multicast & Stream: 0xbf
-  const magicByte = bufferMessage[0];
+  // TAK message header for Multicast & Stream: 191 (0xBF)
+  const plMagicByte = bufferPl[0];
 
-  // Format for Multicast:
-  const takProtoVersion = bufferMessage[1];
-  const magicByte2 = bufferMessage[2];
+  // Header for Multicast: 191 1 191 (0xBF 0x01 0xBF)
+  const plTakProtoVersion = bufferPl[1];
+  const plMagicByte2 = bufferPl[2];
 
-  // console.log(`magicByte=${magicByte} takProtoVersion=${takProtoVersion} magicByte2=${magicByte2}`)
-
-  if (magicByte === 191) { // 0xbf
+  if (plMagicByte === TAK_MAGICBYTE) {
     let trimmedBuffer;
     let payloadStart = 3;
-    let msgLen = bufferMessage.length;
+    let msgLen = bufferPl.length;
 
-    if (magicByte === magicByte2) { // Multicast header
-      trimmedBuffer = bufferMessage.slice(payloadStart, msgLen);
+    if (plMagicByte2 === TAK_MAGICBYTE && plMagicByte === plMagicByte2) { // Multicast header
+      trimmedBuffer = bufferPl.slice(payloadStart, msgLen);
 
-      if (takProtoVersion === 0) { // COT XML
-        takFormat = "Multicast TAK COT XML";
-        payload = cot.xml2js(trimmedBuffer); // try parsing raw XML
-      } else if (takProtoVersion === 1) { // Protobuf
+      if (plTakProtoVersion === TAK_PROTO_VER) {  // Protobuf
         takFormat = "Multicast Protobuf";
         payload = proto.proto2js(trimmedBuffer);
+      } else if (takProtoVersion === 0) { // COT XML
+        takFormat = "Multicast TAK COT XML";
+        payload = cot.xml2js(trimmedBuffer); // try parsing raw XML
+      } else {
+        takFormat = `Unknown TAK Proto Version: ${plTakProtoVersion}`
+        payload = cot.xml2js(trimmedBuffer); // try parsing raw XML
       }
-    } else { // Stream header
-      msgLen = decode(bufferMessage);
-      payloadStart = decode.bytes;
+    } else {
+      /*
+      TAK Stream header explained:
+
+      payload = [191, x, y]
+      x: the length of y, encoded as varint.
+      y: the actual CoT payload
+
+      To decode this payload, for each position in the Buffer:
+      0: Be 191 :deal_with_it_shades:.
+      1: Be a varint.
+      2: Sometimes I'm 191, sometimes I'm the start of a CoT payload.
+      3: If my last neighbor was 191, I'm the start of a CoT payload.
+      
+      */
+      takFormat = "Stream Protobuf";
+
+      const bufferPl = typeof payload !== Buffer ? Buffer.from(payload, "hex") : payload;
+      plLen = decode(bufferPl, offset=1)
+      plStart = decode.bytes
+      takPl = bufferPl.slice(plStart+1, bufferPl.length)
 
       try {
-        trimmedBuffer = bufferMessage.slice(payloadStart, msgLen);
-      } catch (e) {
-        node.error("Failed to decode message", e)
-        error = e;
+        payload = proto.proto2js(takPl);
+      } catch (err) {
+        console.error("proto2js error:", err)
+        error = err;
       }
-
-      takFormat = "Stream Protobuf";
-      payload = proto.proto2js(trimmedBuffer);
     }
   } else {
-
     // not TAK message format
     try {
       takFormat = "COT XML";
-      payload = cot.xml2js(message); // try parsing raw XML
+      payload = cot.xml2js(payload);  // try parsing raw XML
     } catch (e) {
-      node.error("Failed to parse message", e);
+      // node.error("Failed to parse message", e);
       error = e;
     }
   }
@@ -128,14 +150,18 @@ Serializses (encodes) CoT Javascript Object as CoT XML.
 const encodeCOT = (payload) => {
   if (!payload._declaration) {
     payload = {
-      _declaration: { _attributes: { version: "1.0", encoding: "UTF-8" } },
+      _declaration: { _attributes: { version: "1.0", encoding: "UTF-8", standalone: "yes" } },
       ...payload,
     };
   }
 
+  delete payload.TAKFormat
+  delete payload.error
+
   // Plain XML
   const xmlPayload = cot.js2xml(payload);
-  let protojs = proto.cotjs2protojs(payload);
+  const jsonPayload = cot.xml2js(xmlPayload);
+  const protojs = proto.cotjs2protojs(jsonPayload);
 
   // "TAK Protocol Version 1", Multicast & Stream formats:
   let multicastPayload = null;
@@ -143,30 +169,110 @@ const encodeCOT = (payload) => {
 
   let protoCOT = proto.js2proto(protojs)
   if (protoCOT !== undefined) {
-    multicastPayload = Buffer.concat([Buffer.from([0xBF, 0x01, 0xBF]), protoCOT])
+    multicastPayload = Buffer.concat([MCAST_HEADER, protoCOT])
 
     let dataLength = encode(protoCOT.length)
-    streamPayload = Buffer.concat([Buffer.from([0xBF, dataLength]), protoCOT])
+    streamPayload = Buffer.concat([Buffer.from([TAK_MAGICBYTE, dataLength]), protoCOT])
   }
 
   return [xmlPayload, multicastPayload, streamPayload]
 };
 
 /*
-Parses Cursor on Target plain-text XML or Protobuf into Node.js JSON.
+Parses Cursor on Target plain-text XML or Protobuf into JSON.
 */
 const handlePayload = (payload) => {
-  let newPayload;
+  let newPayload = [undefined, undefined, undefined];
 
   const plType = typeof payload;
-  if (plType === "object") {
-    if (typeof payload[0] === "number") {
-      newPayload = [decodeCOT(payload), null, null];
+  if (plType === "object") {  // JSON CoT? Protobuf Buffer?
+    if (typeof payload[0] === "number") {  // Probably Protobuf
+      // console.log("decodeCOT number")
+
+      let decoded
+      try {
+        decoded = decodeCOT(payload)
+      } catch (err) {
+        console.log(err)
+      }
+
+      if (!decoded) {
+        console.log("can't decode")
+        return newPayload
+      }
+
+      let protoCOT = proto.js2proto(decoded)
+
+      let multicastPayload = null;
+      let streamPayload = null;
+    
+      if (protoCOT !== undefined) {
+        multicastPayload = Buffer.concat([MCAST_HEADER, protoCOT])
+        let dataLength = encode(protoCOT.length)
+        streamPayload = Buffer.concat([Buffer.from([TAK_MAGICBYTE, dataLength]), protoCOT])
+      }
+
+      newPayload = [decoded, multicastPayload, streamPayload];
     } else {
       newPayload = encodeCOT(payload);
     }
-  } else {
-    newPayload = [decodeCOT(payload), null, null];
+  } else if (plType === "string") {  // Maybe it's raw XML CoT
+    // console.log("decodeCOT string")
+
+    let decoded = decodeCOT(payload)
+
+    let xmlDetail
+    let asProtoJS
+    let asProto
+    let encoded
+
+    let options = {};
+    options.attrkey = "_attributes"
+    options.charkey = "_";
+    options.explicitRoot = 0;
+    options.renderOpts = { "pretty": false }
+    options.headless = true;
+    options.rootName = MAGIC_ROOT
+
+    try {
+      asProtoJS = proto.cotjs2protojs(decoded)
+    } catch (err) {
+      console.log(err);
+    }
+
+    /* Shove remaining <detail> sub-Elements into xmlDetail.
+    See: https://github.com/deptofdefense/AndroidTacticalAssaultKit-CIV/blob/master/commoncommo/core/impl/protobuf/detail.proto
+    */
+    if (decoded && asProtoJS) {
+      try {
+        xmlDetail = new xml2js.Builder(options).buildObject(decoded.event.detail)
+        asProtoJS.cotEvent.xmlDetail = xmlDetail.replace(`<${options.rootName}>`, '').replace(`</${options.rootName}>`, '')
+      } catch (err) {
+        console.log(err);
+      }
+    }
+
+    // Convert to 'TAK Protocol Version 1'
+    let multicastPayload = null;
+    let streamPayload = null;
+
+    // Convert JSON to Protobuf Buffer
+    if (asProtoJS) {
+      try {
+        asProto = proto.js2proto(asProtoJS)
+      } catch (err) {
+        console.log(err);
+      }
+    }
+
+    if (asProto) {
+      multicastPayload = Buffer.concat([MCAST_HEADER, asProto])
+      let dataLength = encode(asProto.length)
+      let streamHeader = Buffer.from([TAK_MAGICBYTE, dataLength])
+      streamPayload = Buffer.concat([streamHeader, asProto])
+    }
+
+    newPayload = [decoded, multicastPayload, streamPayload]
   }
 
   return newPayload;
