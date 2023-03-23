@@ -30,9 +30,7 @@ const TAK_PROTO_VER = 1
 const MAGIC_ROOT = "XXSNSXX"
 const MCAST_HEADER = Buffer.from([TAK_MAGICBYTE, TAK_PROTO_VER, TAK_MAGICBYTE]);
 
-/*
-Converts Cursor-On-Target Event 'Types' to NATO symbol identification coding (SIDC).
-*/
+// Convert Cursor-On-Target Event 'Types' to NATO symbol identification coding (SIDC) aka 2525.
 let cotType2SIDC = (cotType) => {
   /* Extract the Type and Affiliation. */
   let et = cotType.split("-");
@@ -51,8 +49,8 @@ let cotType2SIDC = (cotType) => {
   return SIDC;
 };
 
+/* TAK Protocol definition, headers & payload.
 
-/*
 TAK Protocol is defined here: 
 https://github.com/deptofdefense/AndroidTacticalAssaultKit-CIV/blob/master/commoncommo/core/impl/protobuf/protocol.txt
 
@@ -66,7 +64,6 @@ const decodeCOT = (payload) => {
     typeof payload !== Buffer ? Buffer.from(payload, "hex") : payload;
 
   let takFormat = "Unknown";
-  let newPayload;
   let error;
 
   // TAK message header for Multicast & Stream: 191 (0xBF)
@@ -128,9 +125,10 @@ const decodeCOT = (payload) => {
     try {
       takFormat = "COT XML";
       payload = cot.xml2js(payload);  // try parsing raw XML
-    } catch (e) {
+    } catch (err) {
+      console.error(err)
       // node.error("Failed to parse message", e);
-      error = e;
+      error = err;
     }
   }
 
@@ -144,50 +142,95 @@ const decodeCOT = (payload) => {
   return payload;
 };
 
-/*
-Serializses (encodes) CoT Javascript Object as CoT XML.
-*/
+// Serializses (encodes) CoT Javascript Object as CoT XML.
 const encodeCOT = (payload) => {
-  if (!payload._declaration) {
-    payload = {
-      _declaration: { _attributes: { version: "1.0", encoding: "UTF-8", standalone: "yes" } },
-      ...payload,
-    };
+  let protoCOT
+  let xmlPayload
+  if (payload.cotEvent) {
+    protoCOT = proto.js2proto(payload.cotEvent)
+
+    let cotJS = proto.protojs2cotjs(payload)
+
+    // FIXME in tak.js:
+		if (payload.cotEvent.detail.track) {
+			cotJS.event.detail.track = {
+				"_attributes": {
+					"course": payload.cotEvent.detail.track.course,
+					"speed": payload.cotEvent.detail.track.speed,
+				}
+			}
+		}
+
+    // FIXME in tak.js:
+		if (payload.cotEvent.detail.precisionLocation) {
+			cotJS.event.detail.precisionlocation = {
+				"_attributes": {
+					"altsrc": payload.cotEvent.detail.precisionLocation.altsrc,
+					"geopointsrc": payload.cotEvent.detail.precisionLocation.geopointsrc,
+				}
+			}
+		}
+
+    if (!cotJS._declaration) {
+      cotJS = {
+        _declaration: { _attributes: { version: "1.0", encoding: "UTF-8", standalone: "yes" } },
+        ...cotJS,
+      }
+    }
+    // console.log("CotJS")
+    // console.log(cotJS)
+    xmlPayload = cot.js2xml(cotJS);
+    // console.log("XML PAYLOAD:")
+    // console.log(xmlPayload)
+
+  } else {
+    if (!payload._declaration) {
+      payload = {
+        _declaration: { _attributes: { version: "1.0", encoding: "UTF-8", standalone: "yes" } },
+        ...payload,
+      }
+    }
+
+    delete payload.TAKFormat
+    delete payload.error
+
+    // Plain XML
+    xmlPayload = cot.js2xml(payload);
+    const jsonPayload = cot.xml2js(xmlPayload);
+    const protojs = proto.cotjs2protojs(jsonPayload);
+    
+    protoCOT = proto.js2proto(protojs)
   }
-
-  delete payload.TAKFormat
-  delete payload.error
-
-  // Plain XML
-  const xmlPayload = cot.js2xml(payload);
-  const jsonPayload = cot.xml2js(xmlPayload);
-  const protojs = proto.cotjs2protojs(jsonPayload);
 
   // "TAK Protocol Version 1", Multicast & Stream formats:
   let multicastPayload = null;
   let streamPayload = null;
 
-  let protoCOT = proto.js2proto(protojs)
-  if (protoCOT !== undefined) {
-    multicastPayload = Buffer.concat([MCAST_HEADER, protoCOT])
+  try {
+    if (protoCOT) {
+      multicastPayload = Buffer.concat([MCAST_HEADER, protoCOT])
 
-    let dataLength = encode(protoCOT.length)
-    streamPayload = Buffer.concat([Buffer.from([TAK_MAGICBYTE, dataLength]), protoCOT])
+      let dataLength = encode(protoCOT.length)
+      streamPayload = Buffer.concat([Buffer.from([TAK_MAGICBYTE, dataLength]), protoCOT])
+    }
+  } catch (err) {
+    console.log("Error converting to Protobuf:")
+    console.log(err)
   }
 
-  return [xmlPayload, multicastPayload, streamPayload]
+  let newMsg = [xmlPayload, multicastPayload, streamPayload]
+  // console.log(newMsg)
+  return newMsg
 };
 
-/*
-Parses Cursor on Target plain-text XML or Protobuf into JSON.
-*/
+// Parses Cursor on Target plain-text XML or Protobuf into JSON.
 const handlePayload = (payload) => {
   let newPayload = [undefined, undefined, undefined];
-
   const plType = typeof payload;
   if (plType === "object") {  // JSON CoT? Protobuf Buffer?
+    // console.log("handlePayload object")
     if (typeof payload[0] === "number") {  // Probably Protobuf
-      // console.log("decodeCOT number")
+      // console.log("handlePayload number")
 
       let decoded
       try {
@@ -214,10 +257,11 @@ const handlePayload = (payload) => {
 
       newPayload = [decoded, multicastPayload, streamPayload];
     } else {
+      // console.log("handlePayload other")
       newPayload = encodeCOT(payload);
     }
   } else if (plType === "string") {  // Maybe it's raw XML CoT
-    // console.log("decodeCOT string")
+    // console.log("handlePayload string")
 
     let decoded = decodeCOT(payload)
 
@@ -237,6 +281,7 @@ const handlePayload = (payload) => {
     try {
       asProtoJS = proto.cotjs2protojs(decoded)
     } catch (err) {
+      console.log("Error handling string payload:")
       console.log(err);
     }
 

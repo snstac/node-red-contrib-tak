@@ -23,33 +23,40 @@ limitations under the License.
 const { handlePayload } = require("./cotLib");
 
 const makeTAKNode = (RED) => {
-  function tak(config) {
+  function tak(config) { // ignore 80002
     RED.nodes.createNode(this, config);
+    this.attrkey = config.attr || "_attributes";
+    this.charkey = config.chr;
+    this.property = config.property || "payload";
+
     let node = this;
 
     node.on("input", (msg) => {
-      node.status({fill:"green", shape:"dot", text:"RX"});
+      node.status({ fill: "green", shape: "dot", text: "Receiving" });
+      let newMsg = [];
 
-      let payloads = handlePayload(msg.payload);
+      let value = RED.util.getMessageProperty(msg, node.property);
+      let payloads = handlePayload(value);
 
-      let msg0 = {
-        "payload": payloads[0],
-        "_session": msg._session
+      for (let i = 0; i < 3; i++) {
+        let pl = payloads[i]
+        
+        let takFormat = pl.TAKFormat;
+        let error = pl.error;
+        delete pl.TAKFormat;
+        delete pl.error;
+        
+        newMsg[i] = {
+          "payload": pl,
+          "_session": msg._session,
+          "error": error,
+          "TAKFormat": takFormat
+        }
       }
-      let msg1 = {
-        "payload": payloads[1],
-        "_session": msg._session
-      }
-      let msg2 = {
-        "payload": payloads[2],
-        "_session": msg._session
-      }
-      let newMsgs = [msg0, msg1, msg2]
 
-      node.send(newMsgs)
+      node.send(newMsg)
 
-      node.status({fill:"blue", shape:"ring", text:"Idle"});
-
+      node.status({ fill: "blue", shape: "ring", text: "Idle" });
     });
   }
   RED.nodes.registerType("tak", tak);
