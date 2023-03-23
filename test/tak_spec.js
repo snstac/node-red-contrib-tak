@@ -215,7 +215,8 @@ describe("TAK Node", () => {
     });
   });
 
-  it("should pass XML CoT to 3 outputs", done => {
+  // XML string
+  it("should pass XML string to 3 outputs", done => {
     const flow = [
       { 
         id: "n1", 
@@ -281,7 +282,7 @@ describe("TAK Node", () => {
     });
   });
 
-  it("should convert XML CoT into JSON", done => {
+  it("should convert XML string into JSON", done => {
     const flow = [
       { 
         id: "n1", 
@@ -322,7 +323,7 @@ describe("TAK Node", () => {
     });
   });
 
-  it("should convert XML CoT into Mesh Protobuf", done => {
+  it("should convert XML string into Mesh Protobuf", done => {
     const flow = [
       { 
         id: "n1", 
@@ -369,7 +370,7 @@ describe("TAK Node", () => {
     });
   });
 
-  it("should convert XML CoT into Stream Protobuf", done => {
+  it("should convert XML string into Stream Protobuf", done => {
     const flow = [
       { 
         id: "n1", 
@@ -411,7 +412,7 @@ describe("TAK Node", () => {
     });
   });
 
-  it("should convert XML CoT into valid Stream Protobuf", done => {
+  it("should convert XML string into valid Stream Protobuf", done => {
     const flow = [
       { 
         id: "n1", 
@@ -457,6 +458,250 @@ describe("TAK Node", () => {
     });
   });
 
+  // XML buffer
+  it("should pass XML buffer to 3 outputs", done => {
+    const flow = [
+      { 
+        id: "n1", 
+        type: "tak", 
+        name: "test name",
+        wires: [["o0"], ["o1"], ["o2"]] 
+      }, 
+      { id: "o0", type: "helper" },
+      { id: "o1", type: "helper" },
+      { id: "o2", type: "helper" }
+    ];
+
+
+    helper.load(makeTAKNode, flow, () => {
+      var n1 = helper.getNode("n1");
+      var o0 = helper.getNode("o0");
+      var o1 = helper.getNode("o1");
+      var o2 = helper.getNode("o2");
+
+      var countedOutputs = 0;
+      var expectedOutputs = 3
+
+      o0.on("input", msg => {
+        countedOutputs++;
+        try {
+          msg.should.have.property("payload")
+          if (countedOutputs === expectedOutputs) {
+            done();
+          }
+        } catch (err) {
+          done(err);
+        }
+
+      })
+
+      o1.on("input", msg => {
+        countedOutputs++;
+        try {
+          msg.should.have.property("payload")
+          if (countedOutputs === expectedOutputs) {
+            done();
+          }
+        } catch (err) {
+          done(err);
+        }
+
+      })
+
+      o2.on("input", msg => {
+        countedOutputs++;
+        try {
+          msg.should.have.property("payload")
+          if (countedOutputs === expectedOutputs) {
+            done();
+          }
+        } catch (err) {
+          done(err);
+        }
+
+      })
+
+      n1.receive({ payload: Buffer.from(testXML) });
+    });
+  });
+
+  it("should convert XML buffer into JSON", done => {
+    const flow = [
+      { 
+        id: "n1", 
+        type: "tak", 
+        name: "test name",
+        wires: [["o0"], ["o1"], ["o2"]] 
+      }, 
+      { id: "o0", type: "helper" },
+      { id: "o1", type: "helper" },
+      { id: "o2", type: "helper" }
+    ];
+
+
+    helper.load(makeTAKNode, flow, () => {
+      var n1 = helper.getNode("n1");
+      var o0 = helper.getNode("o0");
+
+      o0.on("input", msg => {
+        try {
+          msg.should.have.property("payload")
+          msg.payload.should.have.property("event")
+          msg.payload.event.should.have.property("detail")
+          msg.payload.event.should.have.property("point")          
+          msg.payload.event.point._attributes.should.have.property("lat")          
+          msg.payload.event.point._attributes.should.have.property("lon")          
+          msg.payload.event.point._attributes.lat.should.equal(testJSON.event.point._attributes.lat)          
+          msg.payload.event.point._attributes.lon.should.equal(testJSON.event.point._attributes.lon)          
+
+          msg.should.have.property("error", undefined)
+          done();
+        } catch (err) {
+          done(err);
+        }
+
+      })
+
+      n1.receive({ payload: Buffer.from(testXML) });
+    });
+  });
+
+  it("should convert XML buffer into Mesh Protobuf", done => {
+    const flow = [
+      { 
+        id: "n1", 
+        type: "tak", 
+        name: "test name",
+        wires: [["o0"], ["o1"], ["o2"]] 
+      }, 
+      { id: "o0", type: "helper" },
+      { id: "o1", type: "helper" },
+      { id: "o2", type: "helper" }
+    ];
+
+
+    helper.load(makeTAKNode, flow, () => {
+      var n1 = helper.getNode("n1");
+      var o0 = helper.getNode("o0");
+      var o1 = helper.getNode("o1");
+      var o2 = helper.getNode("o2");
+
+      o1.on("input", msg => {
+        try {
+          msg.should.have.property("payload")
+          let payload = msg.payload
+          // console.log("payload:")
+          // console.log(payload)
+
+          // console.log(MCAST_HEADER)
+          // console.log(payload.slice(0, 3))
+          Buffer.compare(payload.slice(0, 3), MCAST_HEADER).should.equal(0)
+
+          let controlVal = Buffer.concat([MCAST_HEADER, Buffer.from([0x0A, 0x00, 0x12, 0x43, 0x0A, 0x0B])])
+          // console.log(payload.slice(3, 7))
+          // console.log(controlVal.slice(3,7 ))
+          Buffer.compare(payload.slice(3, 7), controlVal.slice(3, 7)).should.equal(0)
+
+          done();
+        } catch (err) {
+          done(err);
+        }
+
+      })
+
+      n1.receive({ payload: Buffer.from(testXML) });
+    });
+  });
+
+  it("should convert XML buffer into Stream Protobuf", done => {
+    const flow = [
+      { 
+        id: "n1", 
+        type: "tak", 
+        name: "test name",
+        wires: [["o0"], ["o1"], ["o2"]] 
+      }, 
+      { id: "o0", type: "helper" },
+      { id: "o1", type: "helper" },
+      { id: "o2", type: "helper" }
+    ];
+
+
+    helper.load(makeTAKNode, flow, () => {
+      var n1 = helper.getNode("n1");
+      var o2 = helper.getNode("o2");
+
+      o2.on("input", msg => {
+        try {
+          msg.should.have.property("payload")
+
+          let payload = msg.payload
+          controlVal = Buffer.from([TAK_MAGICBYTE, 0x47, 0x0A, 0x00, 0x12, 0x43, 0x0A, 0x0B])
+
+          // Check Header:
+          Buffer.compare(payload.slice(0, 1), Buffer.from([TAK_MAGICBYTE])).should.equal(0)
+
+          // Check Payload:
+          Buffer.compare(payload.slice(1, 6), controlVal.slice(1, 6)).should.equal(0)
+
+          done();
+        } catch (err) {
+          done(err);
+        }
+
+      })
+
+      n1.receive({ payload: Buffer.from(testXML) });
+    });
+  });
+
+  it("should convert XML buffer into valid Stream Protobuf", done => {
+    const flow = [
+      { 
+        id: "n1", 
+        type: "tak", 
+        name: "test name",
+        wires: [["o0"], ["o1"], ["o2"]] 
+      }, 
+      { id: "o0", type: "helper" },
+      { id: "o1", type: "helper" },
+      { id: "o2", type: "helper" }
+    ];
+
+
+    helper.load(makeTAKNode, flow, () => {
+      var n1 = helper.getNode("n1");
+      var o2 = helper.getNode("o2");
+
+      o2.on("input", msg => {
+        try {
+          msg.should.have.property("payload")
+          let payload = msg.payload
+
+          const bufferPl = typeof payload !== Buffer ? Buffer.from(payload, "hex") : payload;
+          plLen = decode(bufferPl, offset=1)
+          plStart = decode.bytes
+          takPl = bufferPl.slice(plStart+1, bufferPl.length)
+
+          let protoJS
+          try {
+            protoJS = proto.proto2js(takPl)
+          } catch (err) {
+            done(err);
+          }
+
+          done();
+        } catch (err) {
+          done(err);
+        }
+
+      })
+
+      n1.receive({ payload: Buffer.from(testXML) });
+    });
+  });
+
+  // Mesh in
   it("should pass Mesh Protobuf to 3 outputs", done => {
     const flow = [
       { 
@@ -702,6 +947,7 @@ describe("TAK Node", () => {
     });
   });
 
+  // Stream in
   it("should pass Stream Protobuf to 3 outputs", done => {
     const flow = [
       { 
@@ -894,6 +1140,7 @@ describe("TAK Node", () => {
     });
   });
 
+  // Proto JSON in
   it("should pass Proto JSON to 3 outputs", done => {
     const flow = [
       { 

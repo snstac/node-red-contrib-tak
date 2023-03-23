@@ -269,12 +269,12 @@ const encodeCOT = (payload) => {
 // Parses Cursor on Target plain-text XML or Protobuf into JSON.
 const handlePayload = (payload) => {
   let newPayload = [undefined, undefined, undefined];
-  const plType = typeof payload;
+  let plType = typeof payload;
 
   if (plType === "object") {  // JSON CoT? Protobuf Buffer?
     // console.log("handlePayload object")
 
-    if (typeof payload[0] === "number") {  // Probably Protobuf
+    if (Buffer.isBuffer(payload) && payload[0] === TAK_MAGICBYTE) {  // Probably Protobuf
       // console.log("handlePayload object[0]: number")
 
       let protojson
@@ -314,6 +314,10 @@ const handlePayload = (payload) => {
       // console.log("newPayload:")
       // console.log(newPayload)
 
+    } else if (Buffer.isBuffer(payload)) {
+      // console.log("Buffer but not Proto")
+      plType = "string"
+      payload = payload.toString()
     } else {
       // console.log("handlePayload object: other")
       try {
@@ -323,8 +327,9 @@ const handlePayload = (payload) => {
         console.error(err)
       }
     }
-
-  } else if (plType === "string") {  // Maybe it's raw XML CoT
+  }
+  
+  if (plType === "string") {  // Maybe it's raw XML CoT
     // console.log("handlePayload string")
 
     let cotjson
