@@ -129,8 +129,8 @@ const genProtoMesh = () => {
   try {
     asProto = proto.js2proto(testProtoJSON)
   } catch (err) {
-    console.log("Error converting JSON to Protobuf:")
-    console.log(err);
+    console.error("Error converting JSON to Protobuf:")
+    console.error(err);
   }
 
 
@@ -301,8 +301,15 @@ describe("TAK Node", () => {
 
       o0.on("input", msg => {
         try {
-          msg.should.have.property("payload", testJSON)
-          msg.should.have.property("TAKFormat", "COT XML")
+          msg.should.have.property("payload")
+          msg.payload.should.have.property("event")
+          msg.payload.event.should.have.property("detail")
+          msg.payload.event.should.have.property("point")          
+          msg.payload.event.point._attributes.should.have.property("lat")          
+          msg.payload.event.point._attributes.should.have.property("lon")          
+          msg.payload.event.point._attributes.lat.should.equal(testJSON.event.point._attributes.lat)          
+          msg.payload.event.point._attributes.lon.should.equal(testJSON.event.point._attributes.lon)          
+
           msg.should.have.property("error", undefined)
           done();
         } catch (err) {
@@ -335,18 +342,22 @@ describe("TAK Node", () => {
       var o1 = helper.getNode("o1");
       var o2 = helper.getNode("o2");
 
-      var countedOutputs = 0;
-      var expectedOutputs = 3
-
-
       o1.on("input", msg => {
         try {
           msg.should.have.property("payload")
-
           let payload = msg.payload
-          testVal = payload.slice(0, 4)
-          controlVal = Buffer.from([0xBF, 0x01, 0xBF, 0x0A])
-          Buffer.compare(testVal, controlVal).should.equal(0)
+          // console.log("payload:")
+          // console.log(payload)
+
+          // console.log(MCAST_HEADER)
+          // console.log(payload.slice(0, 3))
+          Buffer.compare(payload.slice(0, 3), MCAST_HEADER).should.equal(0)
+
+          let controlVal = Buffer.concat([MCAST_HEADER, Buffer.from([0x0A, 0x00, 0x12, 0x43, 0x0A, 0x0B])])
+          // console.log(payload.slice(3, 7))
+          // console.log(controlVal.slice(3,7 ))
+          Buffer.compare(payload.slice(3, 7), controlVal.slice(3, 7)).should.equal(0)
+
           done();
         } catch (err) {
           done(err);
@@ -381,10 +392,10 @@ describe("TAK Node", () => {
           msg.should.have.property("payload")
 
           let payload = msg.payload
-          controlVal = Buffer.from([0xBF, 0x47, 0x0A, 0x00, 0x12, 0x43, 0x0A, 0x0B])
+          controlVal = Buffer.from([TAK_MAGICBYTE, 0x47, 0x0A, 0x00, 0x12, 0x43, 0x0A, 0x0B])
 
           // Check Header:
-          Buffer.compare(payload.slice(0, 1), controlVal.slice(0, 1)).should.equal(0)
+          Buffer.compare(payload.slice(0, 1), Buffer.from([TAK_MAGICBYTE])).should.equal(0)
 
           // Check Payload:
           Buffer.compare(payload.slice(1, 6), controlVal.slice(1, 6)).should.equal(0)
@@ -628,7 +639,7 @@ describe("TAK Node", () => {
           let payload = msg.payload
           // console.log(payload)
 
-          controlVal = Buffer.from([0xBF, 0x00, 0x12, 0xD5, 0x02, 0x0A, 0x0B, 0x61, 0x2D])
+          controlVal = Buffer.from([TAK_MAGICBYTE, 0xD8, 0x02, 0x12, 0xD5, 0x02, 0x0A, 0x0B, 0x61])
 
           // Check Header:
           Buffer.compare(payload.slice(0, 1), controlVal.slice(0, 1)).should.equal(0)
@@ -809,7 +820,6 @@ describe("TAK Node", () => {
       { id: "o2", type: "helper" }
     ];
 
-
     helper.load(makeTAKNode, flow, () => {
       var n1 = helper.getNode("n1");
       var o0 = helper.getNode("o0");
@@ -822,10 +832,10 @@ describe("TAK Node", () => {
           let payload = msg.payload
           // console.log(payload)
 
-          controlVal = Buffer.from([0xBF, 0x00, 0x12, 0xD5, 0x02, 0x0A, 0x0B, 0x61])
+          controlVal = Buffer.from([TAK_MAGICBYTE, 0xD8, 0x02, 0x12, 0xD5, 0x02, 0x0A, 0x0B])
 
           // Check Header:
-          Buffer.compare(payload.slice(0, 1), controlVal.slice(0, 1)).should.equal(0)
+          Buffer.compare(payload.slice(0, 1), Buffer.from([TAK_MAGICBYTE])).should.equal(0)
 
           // Check Payload:
           Buffer.compare(payload.slice(1, 6), controlVal.slice(1, 6)).should.equal(0)
@@ -985,7 +995,7 @@ describe("TAK Node", () => {
     });
   });
 
-  it.skip("should convert Proto JSON into Mesh Protobuf", done => {
+  it("should convert Proto JSON into Mesh Protobuf", done => {
     const flow = [
       { 
         id: "n1", 
@@ -1005,18 +1015,20 @@ describe("TAK Node", () => {
       var o1 = helper.getNode("o1");
       var o2 = helper.getNode("o2");
 
-      var countedOutputs = 0;
-      var expectedOutputs = 3
-
-
       o1.on("input", msg => {
         try {
           msg.should.have.property("payload")
-
           let payload = msg.payload
-          testVal = payload.slice(0, 4)
-          controlVal = Buffer.from([0xBF, 0x01, 0xBF, 0x0A])
-          Buffer.compare(testVal, controlVal).should.equal(0)
+          // console.log(payload)
+
+          controlVal = Buffer.from([0xBF, 0x01, 0xBF, 0x12, 0xD5, 0x02, 0x0A, 0x0B, 0x61])
+
+          // Check Header:
+          Buffer.compare(payload.slice(0, 3), controlVal.slice(0, 3)).should.equal(0)
+
+          // Check Payload:
+          Buffer.compare(payload.slice(3, 6), controlVal.slice(3, 6)).should.equal(0)
+
           done();
         } catch (err) {
           done(err);
@@ -1024,11 +1036,11 @@ describe("TAK Node", () => {
 
       })
 
-      n1.receive({ payload: testXML });
+      n1.receive({ payload: testProtoJSON });
     });
   });
 
-  it.skip("should convert Proto JSON into Stream Protobuf", done => {
+  it("should convert Proto JSON into Stream Protobuf", done => {
     const flow = [
       { 
         id: "n1", 
@@ -1049,11 +1061,17 @@ describe("TAK Node", () => {
       o2.on("input", msg => {
         try {
           msg.should.have.property("payload")
-
           let payload = msg.payload
-          testVal = payload.slice(0, 6)
-          controlVal = Buffer.from([0xBF, 0x5C, 0x0A, 0x00, 0x12, 0x58])
-          Buffer.compare(testVal, controlVal).should.equal(0)
+          // console.log(payload)
+
+          controlVal = Buffer.from([TAK_MAGICBYTE, 0x47, 0x0A, 0x00, 0x12, 0x43, 0x0A, 0x0B])
+
+          // Check Header:
+          Buffer.compare(payload.slice(0, 1), Buffer.from([TAK_MAGICBYTE])).should.equal(0)
+
+          // Check Payload:
+          Buffer.compare(payload.slice(3, 6), controlVal.slice(3, 6)).should.equal(0)
+
           done();
         } catch (err) {
           done(err);
@@ -1065,7 +1083,7 @@ describe("TAK Node", () => {
     });
   });
 
-  it.skip("should convert Proto JSON into valid Stream Protobuf", done => {
+  it("should convert Proto JSON into valid Stream Protobuf", done => {
     const flow = [
       { 
         id: "n1", 
