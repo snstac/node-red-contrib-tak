@@ -1,10 +1,22 @@
 # node-red-contrib-tak
 
-![ATAK EUD in Worldmap](https://github.com/ampledata/node-red-contrib-tak/raw/main/docs/atak.png)
+![ATAK Screenshot](https://github.com/ampledata/node-red-contrib-tak/raw/main/docs/nr_atak_screenshot.png)
 
-[Node-RED](https://www.nodered.org) Nodes for connecting to [TAK Products](https://tak.gov), including ATAK, WinTAK,
-iTAK, and other software that speaks Cursor on Target, as both XML and Protobuf. Includes nodes for parsing TAK messages, 
-generating TAK messages from JSON, and serializing TAK messages as [Node-RED Worldmap "RedMap"](https://github.com/dceejay/RedMap) JSON.
+[Node-RED](https://www.nodered.org) Nodes for connecting to [TAK Products](https://tak.gov), including ATAK, WinTAK, iTAK & TAK Server. Other systems that speak Cursor on Target (CoT) or the TAK Protocols are also supported, including COPERS. Supports decoding & encoding CoT messages as JSON, plain XML, and both TAK Protocol Version 1 Streaming & TAK Protocol Version 1 Mesh.
+
+These Node-RED Nodes allow the creation of a Tactical ETL: A tool for transforming real-time situational 
+awareness data.
+
+![TAK Node][https://github.com/ampledata/node-red-contrib-tak/raw/main/docs/tak_node.png]
+
+The TAK Node allows TAK data in any format to be decoded and encoded as any other format. 
+
+For example, the node can decode incoming stream data, and re-encode the data as plain XML, or 
+the reverse.
+
+
+.... TK TK TK ...
+ [Node-RED Worldmap "RedMap"](https://github.com/dceejay/RedMap) JSON.
 
 ![TAK2Worldmap in a Node-RED Flow](https://github.com/ampledata/node-red-contrib-tak/raw/main/docs/flow.png)
 

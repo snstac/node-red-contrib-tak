@@ -108,7 +108,6 @@ const decodeCOT = (payload) => {
   const bufferPl =
     typeof payload !== Buffer ? Buffer.from(payload, "hex") : payload;
 
-  let takFormat = "Unknown";
   let error;
 
   // TAK message header for Multicast & Stream: 191 (0xBF)
@@ -127,17 +126,13 @@ const decodeCOT = (payload) => {
       trimmedBuffer = bufferPl.slice(payloadStart, msgLen);
 
       if (plTakProtoVersion === TAK_PROTO_VER) {  // Protobuf
-        takFormat = "Multicast Protobuf";
         payload = proto.proto2js(trimmedBuffer);
       } else if (takProtoVersion === 0) { // COT XML
-        takFormat = "Multicast TAK COT XML";
         payload = cot.xml2js(trimmedBuffer); // try parsing raw XML
       } else {
-        takFormat = `Unknown TAK Proto Version: ${plTakProtoVersion}`
         payload = cot.xml2js(trimmedBuffer); // try parsing raw XML
       }
     } else {
-      takFormat = "Stream Protobuf";
 
       const bufferPl = typeof payload !== Buffer ? Buffer.from(payload, "hex") : payload;
       plLen = decode(bufferPl, offset=1)
@@ -154,7 +149,6 @@ const decodeCOT = (payload) => {
   } else {
     // not TAK message format
     try {
-      takFormat = "COT XML";
       payload = cot.xml2js(payload);  // try parsing raw XML
     } catch (err) {
       console.error(err)
@@ -167,7 +161,6 @@ const decodeCOT = (payload) => {
     payload = {};
   }
 
-  payload.TAKFormat = takFormat;
   payload.error = error;
 
   return payload;
@@ -241,7 +234,6 @@ const encodeCOT = (payload) => {
       }
     }
 
-    delete payload.TAKFormat
     delete payload.error
 
     // Plain XML

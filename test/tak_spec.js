@@ -801,7 +801,6 @@ describe("TAK Node", () => {
           msg.payload.cotEvent.lat.should.equal(testProtoJSON.cotEvent.lat)          
           msg.payload.cotEvent.lon.should.equal(testProtoJSON.cotEvent.lon)          
 
-          msg.should.have.property("TAKFormat", "Multicast Protobuf")
           msg.should.have.property("error", undefined)
           done();
         } catch (err) {
@@ -1041,7 +1040,6 @@ describe("TAK Node", () => {
           msg.payload.cotEvent.lat.should.equal(testProtoJSON.cotEvent.lat)          
           msg.payload.cotEvent.lon.should.equal(testProtoJSON.cotEvent.lon)          
 
-          msg.should.have.property("TAKFormat", "Stream Protobuf")
           msg.should.have.property("error", undefined)
           done();
         } catch (err) {
