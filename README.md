@@ -1,11 +1,9 @@
 # node-red-contrib-tak
+Tactical ETL: A tool for transforming real-time situational awareness data.
 
-![ATAK Screenshot](https://github.com/ampledata/node-red-contrib-tak/raw/main/docs/nr_atak_screenshot-x-25.png)
+[![ATAK Screenshot](https://github.com/ampledata/node-red-contrib-tak/raw/main/docs/nr_atak_screenshot-x-50.png)](https://github.com/ampledata/node-red-contrib-tak/raw/main/docs/nr_atak_screenshotpng)
 
-[Node-RED](https://www.nodered.org) Nodes for connecting to [TAK Products](https://tak.gov), including ATAK, WinTAK, iTAK & TAK Server. Other systems that speak Cursor on Target (CoT) or the TAK Protocols are also supported, including COPERS. Supports decoding & encoding CoT messages as JSON, plain XML, and both TAK Protocol Version 1 Streaming & TAK Protocol Version 1 Mesh.
-
-These Node-RED Nodes allow the creation of a Tactical ETL: A tool for transforming real-time situational 
-awareness data.
+[Node-RED](https://www.nodered.org) Nodes for connecting to [TAK Products](https://tak.gov), including ATAK, WinTAK, iTAK & TAK Server. Supports decoding & encoding CoT messages as JSON, plain XML, and both TAK Protocol Version 1 Streaming & TAK Protocol Version 1 Mesh. Other systems that speak Cursor on Target (CoT) or the TAK Protocols are also supported, including COPERS, RaptorX, et al.
 
 ![TAK Node](https://github.com/ampledata/node-red-contrib-tak/raw/main/docs/tak_node.png)
 
