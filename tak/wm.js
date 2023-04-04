@@ -33,7 +33,8 @@ const makeTAK2WMNode = (RED) => {
         return;
       }
 
-      let pl = handlePayload(msg.payload);
+      let pl = handlePayload(msg.payload)[0];
+
       if (pl === undefined) {
         return;
       }
@@ -50,13 +51,8 @@ const makeTAK2WMNode = (RED) => {
       let takv;
       let lastUpdate;
 
-      let TAKFormat = pl.TAKFormat;
-
-      if (TAKFormat === "COT XML" || TAKFormat === "TAK COT XML") {
+      if (pl.cotEvent === undefined) {
         event = pl.event;
-        if (event === undefined) {
-          return;
-        }
 
         detail = event.detail;
         if (detail) {
@@ -91,11 +87,9 @@ const makeTAK2WMNode = (RED) => {
         point = event.point._attributes;
 
         lastUpdate = new Date(event._attributes.time).toLocaleString();
-      } else if (TAKFormat === "Protobuf") {
+      } else {
+
         event = pl.cotEvent;
-        if (event === undefined) {
-          return;
-        }
 
         detail = event.detail;
         if (detail === undefined) {
@@ -147,12 +141,13 @@ const makeTAK2WMNode = (RED) => {
         takv.platform.toLowerCase().includes("wintak")
       ) {
         let xmlDetail = cot.xml2js(detail.xmlDetail);
-        if (xmlDetail) {
+
+        if (xmlDetail._attributes) {
           contact = xmlDetail._attributes;
-          if (contact === undefined) {
-            contact = xmlDetail.contact._attributes;
-          }
+        } else if (xmlDetail.contact) {
+          contact = xmlDetail.contact._attributes;
         }
+
       }
 
       /* 
@@ -240,7 +235,6 @@ const makeTAK2WMNode = (RED) => {
         SIDC: iconColor ? undefined : sidc,
         iconColor: iconColor,
         battery: battery ? `${battery}%` : undefined,
-        TAKFormat: TAKFormat,
       };
 
       msg.payload = payload;

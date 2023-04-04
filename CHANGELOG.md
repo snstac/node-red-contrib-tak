@@ -1,3 +1,12 @@
+## 4.0.0
+- Updated to support TAK Protocol Version 1 Mesh & Stream Protobuf.
+- Changed TAK Node to have 3 outputs: 1-JSON or XML, 2-Mesh, 3-Stream.
+- Added unit tests!
+- Updated README with node descriptions & GUI install instructions.
+
+## 3.0.0
+Updated protobuf support to include encoding & decoding (input & output).
+
 ## 2.2.0
 - Added protobuf output support via additional second node output.
 
@@ -5,7 +14,6 @@
 - Fixed conditional in wintak protobuf logic.
 
 ## 2.1.0
-
 - Several bug fixes for input CoT parsing. You should now be able to pipe the TAK
   Node directly into the TAK2WM node.
 

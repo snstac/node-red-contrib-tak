@@ -15,7 +15,7 @@ There are two methods to install this and other Node-RED Nodes:
 | :-- |
 | <ol><li>Click the "hamburger" menu in the upper right.</li><li>Click **Manage Palette**</li><ol> | 
 | ![GUI Install 2](./docs/gui_install2.png) |
-| <ol start=3><li>Select **Install** tab.</li><li>Enter **tak** in search box.</li><li>Click **Install** button.</li></ol> |
+| <ol start=3><li>Select **Install** tab.</li><li>Enter **tak** in search box.</li><li>On the node-red-contrib-tak entry, Click **Install** button.</li></ol> |
 
 ### Method 2: CLI (advanced)
 
