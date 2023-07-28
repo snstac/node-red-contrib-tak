@@ -4,8 +4,7 @@
 - Updated GitHub repo URLs to snstac.
 - Formatting & style cleanup with prettier.
 - Improved error handling for weird payloads.
-- Added missing Elements for Protobuf definitions.
-
+- Added missing Elements (le, hae, lat, lon) for Protobuf definitions.
 
 ## 4.0.0
 
