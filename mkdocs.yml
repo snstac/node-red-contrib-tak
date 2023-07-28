@@ -1,7 +1,7 @@
-site_name: Node-RED Sit(x) Node
-site_url: https://node-red-contrib-sitx.readthedocs.io/
-repo_url: https://github.com/snstac/node-red-contrib-sitx/
-site_description: node-red-contrib-sitx Documentation
+site_name: Node-RED TAK Nodes
+site_url: https://node-red-contrib-tak.readthedocs.io/
+repo_url: https://github.com/snstac/node-red-contrib-tak/
+site_description: node-red-contrib-tak Documentation
 site_author: Greg Albrecht <gba@snstac.com>
 copyright: Copyright 2023 Sensors & Signals LLC
 

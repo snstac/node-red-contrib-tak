@@ -1,8 +1,11 @@
 # node-red-contrib-tak: Tactical ETL
 
-[![ATAK Screenshot](./docs/nr_atak_screenshot-x-50.png)](https://github.com/snstac/node-red-contrib-tak/raw/main/docs/nr_atak_screenshot.png)
+<img
+  src="https://raw.githubusercontent.com/snstac/node-red-contrib-tak/main/docs/nr_atak_screenshot.png"
+  alt="ATAK Screenshot"
+/>
 
-[Node-RED](https://www.nodered.org) Nodes for connecting to [TAK Products](https://tak.gov), including ATAK, WinTAK, iTAK & TAK Server. Supports encoding & decoding CoT messages as JSON, plain XML, and both TAK Protocol Version 1 Streaming & TAK Protocol Version 1 Mesh. Other systems that speak Cursor on Target (CoT) or the TAK Protocols are also supported, including COPERS, RaptorX, et al.
+[Node-RED](https://www.nodered.org) Nodes for connecting to [TAK Products](https://www.tak.gov), including ATAK, WinTAK, iTAK & TAK Server. Supports encoding & decoding CoT messages as JSON, plain XML, and both TAK Protocol Version 1 Streaming & TAK Protocol Version 1 Mesh SA. Other systems that speak Cursor on Target (CoT) or the TAK Protocols are also supported, including COPERS, RaptorX, et al.
 
 [Documentation is available here.](https://node-red-contrib-tak.readthedocs.io/)
 
