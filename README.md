@@ -9,6 +9,8 @@
 
 [Documentation is available here.](https://node-red-contrib-tak.readthedocs.io/)
 
+Want to send TAK data to PAR's Sit(x)? Check out [node-red-contrib-sitx](https://node-red-contrib-sitx.readthedocs.io/)
+
 # License & Copyright
 
 Copyright 2023 [Sensors & Signals LLC](https://www.snstac.com)
