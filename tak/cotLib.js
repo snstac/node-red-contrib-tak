@@ -136,7 +136,7 @@ const decodeCOT = (payload) => {
     let msgLen = bufferPl.length;
 
     if (plMagicByte2 === TAK_MAGICBYTE && plMagicByte === plMagicByte2) {
-      // Multicast header
+      // Mesh SA header
       trimmedBuffer = bufferPl.slice(payloadStart, msgLen);
 
       if (plTakProtoVersion === TAK_PROTO_VER) {
@@ -253,9 +253,37 @@ const encodeCOT = (payload) => {
   // console.log("takbuffers")
   // console.log(takbuffers)
 
-  const newMsg = [{ payload: xmlPayload }, ...takbuffers];
+  const newMsg = [{ payload: formatXml(xmlPayload) }, ...takbuffers];
   // console.log(newMsg)
   return newMsg;
+};
+
+const formatXml = (xml) => {
+  const PADDING = " ".repeat(2); // set desired indent size here
+  const reg = /(>)(<)(\/*)/g;
+  let pad = 0;
+
+  xml = xml.replace(reg, "$1\r\n$2$3");
+
+  return xml
+    .split("\r\n")
+    .map((node, index) => {
+      let indent = 0;
+      if (node.match(/.+<\/\w[^>]*>$/)) {
+        indent = 0;
+      } else if (node.match(/^<\/\w/) && pad > 0) {
+        pad -= 1;
+      } else if (node.match(/^<\w[^>]*[^\/]>.*$/)) {
+        indent = 1;
+      } else {
+        indent = 0;
+      }
+
+      pad += indent;
+
+      return PADDING.repeat(pad - indent) + node;
+    })
+    .join("\r\n");
 };
 
 // Convert XML text to JavaScript Object using `xml-js.xml2js()`

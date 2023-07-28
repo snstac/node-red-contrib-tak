@@ -1,7 +1,6 @@
 /* TAK Node-RED Nodes.
 
-Copyright:: Copyright 2023 Greg Albrecht
-Source:: https://github.com/snstac/node-red-contrib-tak
+Copyright 2023 Sensors & Signals LLC
 
 Licensed under the Apache License, Version 2.0 (the 'License');
 you may not use this file except in compliance with the License.
@@ -150,7 +149,7 @@ const genProtoStream = () => {
   try {
     asProto = proto.js2proto(testProtoJSON);
   } catch (err) {
-    console.log(err);
+    console.error(err);
   }
 
   if (asProto) {
@@ -355,10 +354,11 @@ describe("TAK Node", () => {
 
           let controlVal = Buffer.concat([
             MCAST_HEADER,
-            Buffer.from([0x0a, 0x00, 0x12, 0x43, 0x0a, 0x0b]),
+            Buffer.from([0x0a, 0x00, 0x12, 0x5e, 0x0a, 0x0b]),
           ]);
           // console.log(payload.slice(3, 7))
-          // console.log(controlVal.slice(3,7 ))
+          // console.log(controlVal.slice(3, 7))
+
           Buffer.compare(
             payload.slice(3, 7),
             controlVal.slice(3, 7)
@@ -398,11 +398,11 @@ describe("TAK Node", () => {
           let payload = msg.payload;
           controlVal = Buffer.from([
             TAK_MAGICBYTE,
-            0x47,
+            0x62,
             0x0a,
             0x00,
             0x12,
-            0x43,
+            0x5e,
             0x0a,
             0x0b,
           ]);
@@ -612,7 +612,7 @@ describe("TAK Node", () => {
 
           let controlVal = Buffer.concat([
             MCAST_HEADER,
-            Buffer.from([0x0a, 0x00, 0x12, 0x43, 0x0a, 0x0b]),
+            Buffer.from([0x0a, 0x00, 0x12, 0x5e, 0x0a, 0x0b]),
           ]);
           // console.log(payload.slice(3, 7))
           // console.log(controlVal.slice(3,7 ))
@@ -651,15 +651,16 @@ describe("TAK Node", () => {
       o2.on("input", (msg) => {
         try {
           msg.should.have.property("payload");
-
           let payload = msg.payload;
+          // console.log(payload)
+
           controlVal = Buffer.from([
             TAK_MAGICBYTE,
-            0x47,
+            0x62,
             0x0a,
             0x00,
             0x12,
-            0x43,
+            0x5e,
             0x0a,
             0x0b,
           ]);
@@ -1286,7 +1287,7 @@ describe("TAK Node", () => {
           // console.log(formatXml(msg.payload))
           msg.should.have.property("payload");
           // console.log(formatXml(testXML))
-          msg.should.have.property("payload", testXML);
+          msg.should.have.property("payload", formatXml(testXML));
 
           done();
         } catch (err) {
@@ -1324,7 +1325,7 @@ describe("TAK Node", () => {
           // console.log(payload)
 
           controlVal = Buffer.from([
-            0xbf, 0x01, 0xbf, 0x12, 0xd5, 0x02, 0x0a, 0x0b, 0x61,
+            0xbf, 0x01, 0xbf, 0x0a, 0x00, 0x12, 0x5e, 0x0a, 0x0b, 0x61,
           ]);
 
           // Check Header:
@@ -1374,11 +1375,11 @@ describe("TAK Node", () => {
 
           controlVal = Buffer.from([
             TAK_MAGICBYTE,
-            0x47,
+            0x62,
             0x0a,
             0x00,
             0x12,
-            0x43,
+            0x5e,
             0x0a,
             0x0b,
           ]);
