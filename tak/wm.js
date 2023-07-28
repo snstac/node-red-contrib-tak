@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 /* TAK Node-RED Nodes.
 
-Copyright:: Copyright 2023 Greg Albrecht
-Source:: https://github.com/ampledata/node-red-contrib-tak
+Copyright 2023 Sensors & Signals LLC
 
 Licensed under the Apache License, Version 2.0 (the 'License');
 you may not use this file except in compliance with the License.
@@ -88,7 +87,6 @@ const makeTAK2WMNode = (RED) => {
 
         lastUpdate = new Date(event._attributes.time).toLocaleString();
       } else {
-
         event = pl.cotEvent;
 
         detail = event.detail;
@@ -147,7 +145,6 @@ const makeTAK2WMNode = (RED) => {
         } else if (xmlDetail.contact) {
           contact = xmlDetail.contact._attributes;
         }
-
       }
 
       /* 

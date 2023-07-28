@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 /* TAK Node-RED Nodes.
 
-Copyright:: Copyright 2023 Greg Albrecht
-Source:: https://github.com/ampledata/node-red-contrib-tak
+Copyright 2023 Sensors & Signals LLC
 
 Licensed under the Apache License, Version 2.0 (the 'License');
 you may not use this file except in compliance with the License.
@@ -23,7 +22,8 @@ limitations under the License.
 const { handlePayload } = require("./cotLib");
 
 const makeTAKNode = (RED) => {
-  function tak(config) { // ignore 80002
+  function tak(config) {
+    // ignore 80002
     RED.nodes.createNode(this, config);
     this.attrkey = config.attr || "_attributes";
     this.charkey = config.chr;
@@ -36,27 +36,57 @@ const makeTAKNode = (RED) => {
       let newMsg = [];
 
       let value = RED.util.getMessageProperty(msg, node.property);
-      let payloads = handlePayload(value);
+      let payload = handlePayload(value);
 
-      for (let i = 0; i < 3; i++) {
-        let pl = payloads[i]
-        
-        let takFormat = pl.TAKFormat;
-        let error = pl.error;
-        delete pl.TAKFormat;
-        delete pl.error;
-        
-        newMsg[i] = {
-          "payload": pl,
-          "_session": msg._session,
-          "error": error,
-          "TAKFormat": takFormat
-        }
+      if (payload === undefined || payload === null) {
+        node.error({ message: "Undefined or null payload." });
+        return;
       }
 
-      node.send(newMsg)
+      let error = payload.error;
 
-      node.status({ fill: "blue", shape: "ring", text: "Idle" });
+      if (typeof error !== "undefined" && error !== null) {
+        node.error(error);
+      } else {
+        let payloads = payload.payload;
+        let plsType = typeof payloads;
+
+        let plSize = 3;
+        if (plsType === "object" && payloads.length === plSize) {
+          for (let i = 0; i < plSize; i++) {
+            let pl = payloads[i];
+
+            if (pl !== undefined && pl !== null) {
+              node.status({
+                fill: "blue",
+                shape: "dot",
+                text: `Proc: ${i + 1} of ${plSize}`,
+              });
+              let takFormat = pl.TAKFormat;
+              let plErr = pl.error || error;
+              let plPl = pl.payload;
+              delete pl.TAKFormat;
+              delete pl.error;
+              delete pl.payload;
+
+              newMsg[i] = {
+                payload: plPl,
+                _session: msg._session,
+                error: plErr,
+                TAKFormat: takFormat,
+              };
+            } else {
+              node.error({ message: `Empty payload ${i + 1} of ${plSize}.` });
+            }
+          }
+        } else {
+          node.error({
+            message: `Not a valid payload: type=${plsType} len=${payloads.length}`,
+          });
+        }
+      }
+      node.send(newMsg);
+      // node.status({ fill: "blue", shape: "ring", text: "Idle" });
     });
   }
   RED.nodes.registerType("tak", tak);

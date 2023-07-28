@@ -1,6 +1,6 @@
 # Makefile for node-red-contrib-tak
 #
-# Source:: https://github.com/ampledata/node-red-contrib-tak
+# Source:: https://github.com/snstac/node-red-contrib-tak
 # Author:: Greg Albrecht <oss@undef.net>
 # Copyright:: Copyright 2023 Greg Albrecht
 # License:: Apache License, Version 2.0
@@ -30,3 +30,7 @@ jslint:
 
 prettier:
 	npx prettier --write .
+
+mkdocs:
+	pip install -r docs/requirements.txt
+	mkdocs serve

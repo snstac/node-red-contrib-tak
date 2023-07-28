@@ -1,8 +1,7 @@
 <!--
 /* TAK Node-RED Nodes.
 
-Copyright:: Copyright 2023 Greg Albrecht
-Source:: https://github.com/ampledata/node-red-contrib-tak
+Copyright 2023 Sensors & Signals LLC
 
 Licensed under the Apache License, Version 2.0 (the 'License');
 you may not use this file except in compliance with the License.
@@ -43,27 +42,63 @@ limitations under the License.
 </script>
 
 <script type="text/html" data-template-name="tak">
-
   <div class="form-row">
-    <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="node-red:common.label.name"></span></label>
-    <input type="text" id="node-input-name" data-i18n="node-red:[placeholder]common.label.name">
+    <label for="node-input-name"
+      ><i class="fa fa-tag"></i>
+      <span data-i18n="node-red:common.label.name"></span
+    ></label>
+    <input
+      type="text"
+      id="node-input-name"
+      data-i18n="node-red:[placeholder]common.label.name"
+    />
   </div>
 
   <div class="form-row">
-    <label for="node-input-property"><i class="fa fa-ellipsis-h"></i> <span data-i18n="node-red:common.label.property"></span></label>
-    <input type="text" id="node-input-property" style="width:70%;"  placeholder="payload"/>
+    <label for="node-input-property"
+      ><i class="fa fa-ellipsis-h"></i>
+      <span data-i18n="node-red:common.label.property"></span
+    ></label>
+    <input
+      type="text"
+      id="node-input-property"
+      style="width:70%;"
+      placeholder="payload"
+    />
   </div>
 
-  <hr align="middle"/>
+  <hr align="middle" />
 
   <div class="form-row">
-      <label style="width:100%;"><span data-i18n="node-red:xml.label.x2o"></span></label>
+    <label style="width:100%;"
+      ><span data-i18n="node-red:xml.label.x2o"></span
+    ></label>
   </div>
   <div class="form-row" style="padding-left: 20px;">
-      <label style="width:250px;" for="node-input-attr" data-i18n="node-red:xml.label.represent"></label> <input type="text" id="node-input-attr" style="text-align:center; width:100px" placeholder="_attributes">
+    <label
+      style="width:250px;"
+      for="node-input-attr"
+      data-i18n="node-red:xml.label.represent"
+    ></label>
+    <input
+      type="text"
+      id="node-input-attr"
+      style="text-align:center; width:100px"
+      placeholder="_attributes"
+    />
   </div>
   <div class="form-row" style="padding-left: 20px;">
-      <label style="width:250px;" for="node-input-chr" data-i18n="node-red:xml.label.prefix"></label> <input type="text" id="node-input-chr" style="text-align:center; width:40px" placeholder="_">
+    <label
+      style="width:250px;"
+      for="node-input-chr"
+      data-i18n="node-red:xml.label.prefix"
+    ></label>
+    <input
+      type="text"
+      id="node-input-chr"
+      style="text-align:center; width:40px"
+      placeholder="_"
+    />
   </div>
 </script>
 
@@ -71,7 +106,7 @@ limitations under the License.
   <p>
     A encoder & decoder for
     <a href="https://www.tak.gov">Team Awareness Kit (TAK)</a> Cursor on Target
-    (CoT) messages. Supports plain XML ("'Traditional' TAK Protocol Version 0"), 
+    (CoT) messages. Supports plain XML ("'Traditional' TAK Protocol Version 0"),
     Multicast ("mesh SA") & Stream Protobuf messages ("TAK Protocol Version 1").
   </p>
 
@@ -81,7 +116,9 @@ limitations under the License.
     <dd>One of:</dd>
     <ol>
       <li>object: A JavaScript-native Object containing CoT details.</li>
-      <li>buffer: Raw output from a network socket, for example, tcp-in or udp-in.</li>
+      <li>
+        buffer: Raw output from a network socket, for example, tcp-in or udp-in.
+      </li>
       <li>string: Plain XML CoT as a String.</li>
     </ol>
   </dl>
@@ -89,14 +126,19 @@ limitations under the License.
   <h3>Outputs</h3>
   This node hast 3 different outputs:
   <ol>
-
     <li>
       <dl class="message-properties">
         <dt>payload <span class="property-type">object | string</span></dt>
         <dd>
           <ul>
-            <li>If the input is a string it tries to parse it as XML and creates a JavaScript object.</li>
-            <li>If the input is a JavaScript object it tries to build an XML string.</li>
+            <li>
+              If the input is a string it tries to parse it as XML and creates a
+              JavaScript object.
+            </li>
+            <li>
+              If the input is a JavaScript object it tries to build an XML
+              string.
+            </li>
           </ul>
         </dd>
       </dl>
@@ -142,7 +184,8 @@ limitations under the License.
           }
       }
   }
-}</pre>
+}</pre
+  >
 
   <h4>Example Output CoT XML:</h4>
   <pre>

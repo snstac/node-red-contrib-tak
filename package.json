@@ -1,15 +1,15 @@
 {
   "name": "node-red-contrib-tak",
-  "version": "4.0.1",
+  "version": "4.1.0-beta1",
   "description": "Node-RED Nodes for encoding & decoding TAK Protocol and Cursor on Target messages from TAK Products.",
   "license": "Apache-2.0",
-  "url": "https://github.com/ampledata/node-red-contrib-tak",
+  "url": "https://github.com/snstac/node-red-contrib-tak",
   "author": {
     "name": "Greg Albrecht",
     "email": "oss@undef.net",
-    "url": "https://ampledata.org"
+    "url": "https://www.snstac.com"
   },
-  "homepage": "https://github.com/ampledata/node-red-contrib-tak",
+  "homepage": "https://github.com/snstac/node-red-contrib-tak",
   "dependencies": {
     "@vidterra/tak.js": "0.0.8",
     "mocha": "^10.2.0",
@@ -20,7 +20,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/ampledata/node-red-contrib-tak"
+    "url": "https://github.com/snstac/node-red-contrib-tak"
   },
   "keywords": [
     "node-red",
@@ -44,7 +44,7 @@
     "jshint": "^2.13.6",
     "jslint": "^0.12.1",
     "node-red-dev": "^0.1.5",
-    "prettier": "2.8.7"
+    "prettier": "^2.8.7"
   },
   "scripts": {
     "start": "node-red",
