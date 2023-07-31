@@ -1,3 +1,7 @@
+## 4.1.1
+
+- Fixes #2: TAK2WM broken in 4.1.0
+
 ## 4.1.0
 
 - Moved documentation to ReadTheDocs: [node-red-contrib-tak](https://node-red-contrib-tak.readthedocs.io)
