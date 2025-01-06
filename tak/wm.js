@@ -29,12 +29,12 @@ const makeTAK2WMNode = (RED) => {
 
     node.on("input", (msg) => {
       node.status({ fill: "green", shape: "dot", text: "Receiving" });
+	    let payload
 
-      // let value = RED.util.getMessageProperty(msg, node.property);
-      let payload = handlePayload(msg.payload);
+      payload = handlePayload(msg.payload);
 
       if (payload === undefined || payload === null) {
-        node.error({ message: "Undefined or null payload." });
+        node.status({ fill: "yellow", shape: "dot", text: "Invalid Data" });
         return;
       }
 
@@ -98,7 +98,6 @@ const makeTAK2WMNode = (RED) => {
 
           detail = event.detail;
           if (detail === undefined) {
-            console.log("undefined detail")
             return;
           }
 

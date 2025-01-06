@@ -75,12 +75,8 @@ const takproto2buffers = (takproto) => {
   let streamPayload;
 
   let dataLen = encode(takproto.length);
-  // console.log("dataLen:")
-  // console.log(dataLen)
 
   let streamHeader = Buffer.from([TAK_MAGICBYTE].concat(dataLen));
-  // console.log("streamHeader:")
-  // console.log(streamHeader)
 
   multicastPayload = Buffer.concat([MCAST_HEADER, takproto]);
   streamPayload = Buffer.concat([streamHeader, takproto]);
@@ -116,8 +112,6 @@ To decode this payload, for each position in the Buffer:
  * @param {object} payload - Payload to decode.
  */
 const decodeCOT = (payload) => {
-  // console.log("payload:")
-  // console.log(payload)
   const bufferPl =
     typeof payload !== Buffer ? Buffer.from(payload, "hex") : payload;
 
@@ -196,8 +190,6 @@ const XML_DECLARATION = {
  * @param {object} payload - Payload to encode.
  */
 const encodeCOT = (payload) => {
-  // console.log("encodeCOT payload:")
-  // console.log(payload)
   delete payload.error;
 
   let takproto;
@@ -205,13 +197,10 @@ const encodeCOT = (payload) => {
   let protojson;
 
   if (typeof payload.cotEvent !== "undefined" && payload.cotEvent !== null) {
-    // console.log("cotEvent")
 
     protojson = payload;
 
     let cotJS = proto.protojs2cotjs(protojson);
-    // console.log("cotJS")
-    // console.log(cotJS)
 
     // FIXME in tak.js:
     if (protojson.cotEvent.detail.track) {
@@ -242,19 +231,15 @@ const encodeCOT = (payload) => {
 
   // Plain XML
   xmlPayload = cot.js2xml(payload);
+		
   const jsonPayload = cot.xml2js(xmlPayload);
   const protojs = cotjs2protojs(jsonPayload);
 
   takproto = proto.js2proto(protojs);
-  // console.log("takproto")
-  // console.log(takproto)
 
   takbuffers = takproto2buffers(takproto);
-  // console.log("takbuffers")
-  // console.log(takbuffers)
 
   const newMsg = [{ payload: formatXml(xmlPayload) }, ...takbuffers];
-  // console.log(newMsg)
   return newMsg;
 };
 
@@ -301,22 +286,21 @@ const convertXML = (payload) => {
   }
 
   if (typeof cotjson === "undefined" || cotjson === null) {
-    error = { message: "Nothing returned from XML decoder." };
+    return { error: { message: "Nothing returned from XML decoder." }};
   }
 
   if (typeof cotjson.event === "undefined" || cotjson.event === null) {
-    error = { message: "No Event Element returned from XML decoder." };
+    return { error: { message: "No Event Element returned from XML decoder." }};
   }
 
   if (
     typeof cotjson.event.point === "undefined" ||
     cotjson.event.point === null
   ) {
-    error = { message: "No Point Element returned from XML decoder." };
+    cotjson.error = { message: "No Point Element returned from XML decoder." };
+    return cotjson
   }
 
-  cotjson.error = error;
-  return cotjson;
 };
 
 const cotjs2protojs = (cotjs) => {
@@ -402,11 +386,8 @@ const handlePayload = (payload) => {
   if (plType === "object") {
     // Probably Protobuf
     if (Buffer.isBuffer(payload) && payload[0] === TAK_MAGICBYTE) {
-      // console.log("handlePayload object[0]: number")
 
       let protojson = decodeCOT(payload);
-      // console.log("protojson:")
-      // console.log(protojson)
       combo.payload = [{ payload: protojson }];
 
       let takproto;
@@ -419,8 +400,6 @@ const handlePayload = (payload) => {
         };
         return combo;
       }
-      // console.log("takproto:")
-      // console.log(takproto)
 
       let takbuffers;
       try {
@@ -432,35 +411,36 @@ const handlePayload = (payload) => {
         };
         return combo;
       }
-      // console.log("takbuffers:")
-      // console.log(takbuffers)
 
       combo.payload.push(...takbuffers);
     } else if (Buffer.isBuffer(payload)) {
-      // console.log("Buffer but not Proto")
       plType = "string";
       payload = payload.toString();
     } else {
-      // console.log("handlePayload object: other")
       try {
         combo.payload = encodeCOT(payload);
       } catch (err) {
+	      throw err;
         combo.error = {
           message: "Could not encode TAK payload.",
           exception: err,
+	  payload: payload,
         };
-        return combo;
+	throw err;
+        // return combo;
       }
     }
   }
 
   // Maybe it's raw XML CoT
   if (plType === "string") {
-    // console.log("handlePayload string")
 
     let cotjson = convertXML(payload);
-    // console.log("cotjson: ")
-    // console.log(cotjson)
+
+    if (typeof cotjson === "undefined" || cotjson === null) {
+	    combo.error = "cotjson undefined"
+	    return combo
+    }
 
     combo.payload = [{ payload: cotjson }];
     if (typeof cotjson.event === "undefined" && cotjson.event === null) {
@@ -479,8 +459,6 @@ const handlePayload = (payload) => {
       combo.error = protojson.error;
       return combo;
     }
-    // console.log("protojson: ")
-    // console.log(protojson)
 
     /* Shove remaining <detail> sub-Elements into xmlDetail.
     See: https://github.com/deptofdefense/AndroidTacticalAssaultKit-CIV/blob/master/commoncommo/core/impl/protobuf/detail.proto
@@ -519,8 +497,6 @@ const handlePayload = (payload) => {
         exception: err,
       };
     }
-    // console.log("takproto:")
-    // console.log(takproto)
 
     let takbuffers;
     try {
@@ -532,15 +508,10 @@ const handlePayload = (payload) => {
       };
       return combo;
     }
-    // console.log("takbuffers:")
-    // console.log(takbuffers)
 
     combo.payload.push(...takbuffers);
   }
 
-  // console.log("combo:")
-  // console.log(`plType=${plType}`)
-  // console.log(combo)
   return combo;
 };
 
