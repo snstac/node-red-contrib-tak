@@ -347,19 +347,24 @@ describe("TAK Node", () => {
         try {
           msg.should.have.property("payload");
           let payload = msg.payload;
-          // console.log("payload:")
-          // console.log(payload)
+          console.log("payload:")
+          console.log(payload)
 
-          // console.log(MCAST_HEADER)
-          // console.log(payload.slice(0, 3))
+          console.log("MCAST_HEADER:")
+          console.log(MCAST_HEADER)
+          console.log("payload.slice(0, 3):")
+          console.log(payload.slice(0, 3))
           Buffer.compare(payload.slice(0, 3), MCAST_HEADER).should.equal(0);
 
           let controlVal = Buffer.concat([
             MCAST_HEADER,
-            Buffer.from([0x0a, 0x00, 0x12, 0x5e, 0x0a, 0x0b]),
+            Buffer.from([0x0a, 0x00, 0x12, 0xba, 0x0a, 0x0b]),
           ]);
-          // console.log(payload.slice(3, 7))
-          // console.log(controlVal.slice(3, 7))
+
+          console.log("payload.slice(3, 7):")
+          console.log(payload.slice(3, 7))
+          console.log("controlVal.slice(3, 7):")
+          console.log(controlVal.slice(3, 7))
 
           Buffer.compare(
             payload.slice(3, 7),
@@ -400,22 +405,30 @@ describe("TAK Node", () => {
           let payload = msg.payload;
           controlVal = Buffer.from([
             TAK_MAGICBYTE,
-            0x62,
+            0xbf,
+            0x01,
             0x0a,
             0x00,
             0x12,
-            0x5e,
             0x0a,
             0x0b,
           ]);
 
           // Check Header:
+          console.log("payload.slice(0, 1):")
+          console.log(payload.slice(0, 1))
+          console.log("Buffer.from([TAK_MAGICBYTE]):")
+          console.log(Buffer.from([TAK_MAGICBYTE]))
           Buffer.compare(
             payload.slice(0, 1),
             Buffer.from([TAK_MAGICBYTE])
           ).should.equal(0);
 
           // Check Payload:
+          console.log("payload.slice(1, 6):")
+          console.log(payload.slice(1, 6))
+          console.log("controlVal.slice(1, 6):")
+          console.log(controlVal.slice(1, 6))
           Buffer.compare(
             payload.slice(1, 6),
             controlVal.slice(1, 6)
@@ -605,19 +618,23 @@ describe("TAK Node", () => {
         try {
           msg.should.have.property("payload");
           let payload = msg.payload;
-          // console.log("payload:")
-          // console.log(payload)
+          console.log("payload:")
+          console.log(payload)
 
-          // console.log(MCAST_HEADER)
-          // console.log(payload.slice(0, 3))
+          console.log("MCAST_HEADER:")
+          console.log(MCAST_HEADER)
+          console.log("payload.slice(0, 3):")
+          console.log(payload.slice(0, 3))
           Buffer.compare(payload.slice(0, 3), MCAST_HEADER).should.equal(0);
 
           let controlVal = Buffer.concat([
             MCAST_HEADER,
-            Buffer.from([0x0a, 0x00, 0x12, 0x5e, 0x0a, 0x0b]),
+            Buffer.from([0x0a, 0x00, 0x12, 0xba, 0x0a, 0x0b]),
           ]);
-          // console.log(payload.slice(3, 7))
-          // console.log(controlVal.slice(3,7 ))
+          console.log("payload.slice(3, 7):")
+          console.log(payload.slice(3, 7))
+          console.log("controlVal.slice(3, 7):")
+          console.log(controlVal.slice(3,7 ))
           Buffer.compare(
             payload.slice(3, 7),
             controlVal.slice(3, 7)
@@ -654,26 +671,35 @@ describe("TAK Node", () => {
         try {
           msg.should.have.property("payload");
           let payload = msg.payload;
-          // console.log(payload)
+          console.log("payload:")
+          console.log(payload)
 
           controlVal = Buffer.from([
             TAK_MAGICBYTE,
-            0x62,
+            0xbf,
+            0x01,
             0x0a,
             0x00,
             0x12,
-            0x5e,
             0x0a,
             0x0b,
           ]);
 
           // Check Header:
+          console.log("payload.slice(0, 1):")
+          console.log(payload.slice(0, 1))
+          console.log("Buffer.from([TAK_MAGICBYTE]):")
+          console.log(Buffer.from([TAK_MAGICBYTE]))
           Buffer.compare(
             payload.slice(0, 1),
             Buffer.from([TAK_MAGICBYTE])
           ).should.equal(0);
 
           // Check Payload:
+          console.log("payload.slice(1, 6):")
+          console.log(payload.slice(1, 6))
+          console.log("controlVal.slice(1, 6):")
+          console.log(controlVal.slice(1, 6))
           Buffer.compare(
             payload.slice(1, 6),
             controlVal.slice(1, 6)
@@ -914,7 +940,8 @@ describe("TAK Node", () => {
         try {
           msg.should.have.property("payload");
           let payload = msg.payload;
-          // console.log(payload)
+          console.log("payload:")
+          console.log(payload)
 
           controlVal = Buffer.from([
             TAK_MAGICBYTE,
@@ -929,12 +956,20 @@ describe("TAK Node", () => {
           ]);
 
           // Check Header:
+          console.log("payload.slice(0, 1):")
+          console.log(payload.slice(0, 1))
+          console.log("Buffer.from([TAK_MAGICBYTE]):")
+          console.log(Buffer.from([TAK_MAGICBYTE]))
           Buffer.compare(
             payload.slice(0, 1),
             controlVal.slice(0, 1)
           ).should.equal(0);
 
           // Check Payload:
+          console.log("payload.slice(1, 6):")
+          console.log(payload.slice(1, 6))
+          console.log("controlVal.slice(1, 6):")
+          console.log(controlVal.slice(1, 6))
           Buffer.compare(
             payload.slice(1, 6),
             controlVal.slice(1, 6)
@@ -1373,26 +1408,35 @@ describe("TAK Node", () => {
         try {
           msg.should.have.property("payload");
           let payload = msg.payload;
-          // console.log(payload)
+          console.log("payload:")
+          console.log(payload)
 
           controlVal = Buffer.from([
             TAK_MAGICBYTE,
-            0x62,
+            0xbf,
+            0x01,
             0x0a,
             0x00,
             0x12,
-            0x5e,
             0x0a,
             0x0b,
           ]);
 
           // Check Header:
+          console.log("payload.slice(0, 1):")
+          console.log(payload.slice(0, 1))
+          console.log("Buffer.from([TAK_MAGICBYTE]):")
+          console.log(Buffer.from([TAK_MAGICBYTE]))
           Buffer.compare(
             payload.slice(0, 1),
             Buffer.from([TAK_MAGICBYTE])
           ).should.equal(0);
 
           // Check Payload:
+          console.log("payload.slice(1, 6):")
+          console.log(payload.slice(1, 6))
+          console.log("controlVal.slice(1, 6):")
+          console.log(controlVal.slice(1, 6))
           Buffer.compare(
             payload.slice(3, 6),
             controlVal.slice(3, 6)

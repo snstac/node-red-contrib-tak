@@ -193,19 +193,20 @@ const XML_DECLARATION = {
  * @param {object} payload - Payload to encode.
  */
 const encodeCOT = (payload) => {
-  console.log("encodeCOT payload:")
-  console.log(payload)
   delete payload.error;
+
+  if (typeof payload !== 'object' || Object.keys(payload).length === 0) {
+    return [{ payload: "" }, { payload: Buffer.from([]) }, { payload: Buffer.from([]) }];
+  }
+
+
 
   let takproto;
   let xmlPayload;
   let protojson;
 
   if (typeof payload.cotEvent !== "undefined" && payload.cotEvent !== null) {
-
     protojson = payload;
-    // console.log("PROTOJSON")
-    // console.log(protojson)
 
     // FIXME: We lose xmlDetail here:
     let cotJS = proto.protojs2cotjs(protojson);
@@ -231,8 +232,6 @@ const encodeCOT = (payload) => {
     }
 
     payload = cotJS;
-    // console.log("PAYLOAD")
-    // console.log(payload)
   }
 
   if (!payload._declaration) {
@@ -241,16 +240,10 @@ const encodeCOT = (payload) => {
 
   // Plain XML
   xmlPayload = cot.js2xml(payload);
-  // console.log("xmlPayload:")
-  // console.log(xmlPayload)
 
   const jsonPayload = cot.xml2js(xmlPayload);
-  console.log("jsonPayload")
-  console.log(jsonPayload)
 
   const protojs = cotjs2protojs(jsonPayload);
-  console.log("protojs")
-  console.log(protojs)
 
   takproto = proto.js2proto(protojs);
 
@@ -300,6 +293,7 @@ const convertXML = (payload) => {
       message: "Attempted to decode payload as XML.",
       exception: err,
     };
+    
   }
 
   if (typeof cotjson === "undefined" || cotjson === null) {
@@ -315,13 +309,17 @@ const convertXML = (payload) => {
     cotjson.event.point === null
   ) {
     cotjson.error = { message: "No Point Element returned from XML decoder." };
-    return cotjson
   }
 
+  return cotjson
 };
 
 const cotjs2protojs = (cotjs) => {
   if (typeof cotjs.event === "undefined" || cotjs.event === null) {
+    return;
+  }
+
+  if (typeof cotjs.event.point === "undefined" || cotjs.event.point === null) {
     return;
   }
 
@@ -398,129 +396,158 @@ const handlePayload = (payload) => {
     error: undefined,
   };
 
-  let plType = typeof payload;
-
-  if (typeof cot === "undefined" || cot === null) {
+  if (typeof payload === "undefined" || payload === null) {
     combo.error = { message: "Attempted to parse empty payload." };
     return combo;
   }
 
-  /* 
-  CoT-JSON? 
-  Protobuf Buffer?
+  let plType = typeof payload;
+  switch (plType) {
+    case "object":
+      combo = processObjectPayload(payload);
+      break;
+    case "string":
+      combo = processStringPayload(payload);
+      break;
+    default:
+      combo.error = { message: `Unsupported payload type: ${plType}` };
+      break;
+  }
+
+  return combo;
+};
+
+
+// Maybe it's raw XML CoT
+const processStringPayload = (payload) => {
+  let combo = {
+    //          XML        MESH       STREAM
+    payload: [undefined, undefined, undefined],
+    error: undefined,
+  };
+
+  let cotjson
+  // Maybe it's raw XML CoT
+  try {
+    cotjson = convertXML(payload);
+  } catch (err) {
+    combo.error = {
+      message: "Error convering XML string to JSON: " + err,
+      exception: err,
+    };
+    return combo;
+  }
+  
+  if (typeof cotjson === "undefined" || cotjson === null) {
+    combo.error = {message: "cotjson undefined"};
+    return combo;
+  }
+
+  combo.payload = [{ payload: cotjson }];
+  if (typeof cotjson.event === "undefined" && cotjson.event === null) {
+    combo.error = {
+      message: "No Event Element returned from XML decoder.",
+    };
+    return combo;
+  }
+
+  if (
+    typeof cotjson.event.point === "undefined" &&
+    cotjson.event.point === null
+  ) {
+    combo.error = {
+      message: "No Point Element returned from XML decoder.",
+    };
+    return combo;
+  }
+
+  let protojson = convertCoTJSON(cotjson);
+  if (protojson.error) {
+    combo.error = {message: protojson.error};
+    return combo;
+  }
+
+  /* Shove remaining <detail> sub-Elements into xmlDetail.
+  See: https://github.com/deptofdefense/AndroidTacticalAssaultKit-CIV/blob/master/commoncommo/core/impl/protobuf/detail.proto
   */
-  if (plType === "object") {
-    // Probably Protobuf
-    if (Buffer.isBuffer(payload) && payload[0] === TAK_MAGICBYTE) {
+  let options = {
+    attrkey: "_attributes",
+    charkey: "_",
+    explicitRoot: 0,
+    renderOpts: { pretty: false },
+    headless: true,
+    rootName: MAGIC_ROOT,
+  };
 
-      let protojson = decodeCOT(payload);
-      combo.payload = [{ payload: protojson }];
-
-      let takproto;
-      try {
-        takproto = proto.js2proto(protojson);
-      } catch (err) {
-        combo.error = {
-          message: "Error converting Proto JSON to Proto Buffer.",
-          exception: err,
-        };
-        return combo;
-      }
-
-      let takbuffers;
-      try {
-        takbuffers = takproto2buffers(takproto);
-      } catch (err) {
-        combo.error = {
-          message: "Error converting takproto to buffers.",
-          exception: err,
-        };
-        return combo;
-      }
-
-      combo.payload.push(...takbuffers);
-    } else if (Buffer.isBuffer(payload)) {
-      plType = "string";
-      payload = payload.toString();
-    } else {
-      try {
-        combo.payload = encodeCOT(payload);
-      } catch (err) {
-        combo.error = {
-          message: "Could not encode TAK payload.",
-          exception: err,
-	        payload: payload,
-        };
-	throw err;
-        // return combo;
-      }
+  const detail = cotjson.event.detail;
+  if (typeof detail !== "undefined" && detail !== null) {
+    let xmlDetail;
+    try {
+      xmlDetail = new xml2js.Builder(options).buildObject(detail);
+      protojson.cotEvent.xmlDetail = xmlDetail
+        .replace(`<${options.rootName}>`, "")
+        .replace(`</${options.rootName}>`, "");
+    } catch (err) {
+      combo.error = {
+        message: "Attempted to convert Detail Element.",
+        exception: err,
+      };
+      return combo;
     }
   }
 
-  // Maybe it's raw XML CoT
-  if (plType === "string") {
-
-    let cotjson = convertXML(payload);
-
-    if (typeof cotjson === "undefined" || cotjson === null) {
-	    combo.error = "cotjson undefined"
-	    return combo
-    }
-
-    combo.payload = [{ payload: cotjson }];
-    if (typeof cotjson.event === "undefined" && cotjson.event === null) {
-      return combo;
-    }
-
-    if (
-      typeof cotjson.event.point === "undefined" &&
-      cotjson.event.point === null
-    ) {
-      return combo;
-    }
-
-    let protojson = convertCoTJSON(cotjson);
-    if (protojson.error) {
-      combo.error = protojson.error;
-      return combo;
-    }
-
-    /* Shove remaining <detail> sub-Elements into xmlDetail.
-    See: https://github.com/deptofdefense/AndroidTacticalAssaultKit-CIV/blob/master/commoncommo/core/impl/protobuf/detail.proto
-    */
-    let options = {
-      attrkey: "_attributes",
-      charkey: "_",
-      explicitRoot: 0,
-      renderOpts: { pretty: false },
-      headless: true,
-      rootName: MAGIC_ROOT,
+  let takproto;
+  try {
+    takproto = proto.js2proto(protojson);
+  } catch (err) {
+    combo.error = {
+      message: "Error converting Protobuf JSON to Protobuf Buffer.",
+      exception: err,
     };
+    return combo;
+  }
 
-    const detail = cotjson.event.detail;
-    if (typeof detail !== "undefined" && detail !== null) {
-      let xmlDetail;
-      try {
-        xmlDetail = new xml2js.Builder(options).buildObject(detail);
-        protojson.cotEvent.xmlDetail = xmlDetail
-          .replace(`<${options.rootName}>`, "")
-          .replace(`</${options.rootName}>`, "");
-      } catch (err) {
-        combo.error = {
-          message: "Attempted to convert Detail Element.",
-          exception: err,
-        };
-      }
-    }
+  let takbuffers;
+  try {
+    takbuffers = takproto2buffers(takproto);
+  } catch (err) {
+    combo.error = {
+      message: "Error converting takproto to buffers.",
+      exception: err,
+    };
+    return combo;
+  }
+
+  combo.payload.push(...takbuffers);
+
+  return combo;
+}
+
+/* 
+CoT-JSON? 
+Protobuf Buffer?
+*/
+const processObjectPayload = (payload) => {
+  let combo = {
+    //          XML        MESH       STREAM
+    payload: [undefined, undefined, undefined],
+    error: undefined,
+  };
+
+  // Probably Protobuf
+  if (Buffer.isBuffer(payload) && payload[0] === TAK_MAGICBYTE) {
+    let protojson = decodeCOT(payload);
+    combo.payload = [{ payload: protojson }];
 
     let takproto;
     try {
       takproto = proto.js2proto(protojson);
     } catch (err) {
       combo.error = {
-        message: "Error converting Protobuf JSON to Protobuf Buffer.",
+        message: "Error converting JSON to Protobuf: " + err,
         exception: err,
       };
+      return combo;
     }
 
     let takbuffers;
@@ -528,16 +555,46 @@ const handlePayload = (payload) => {
       takbuffers = takproto2buffers(takproto);
     } catch (err) {
       combo.error = {
-        message: "Error converting takproto to buffers.",
+        message: "Error converting takproto to buffers: " + err,
         exception: err,
       };
       return combo;
     }
 
     combo.payload.push(...takbuffers);
+  } else if (Buffer.isBuffer(payload)) {
+    try {
+      payload = payload.toString();
+    } catch (err) {
+      combo.error = {
+        message: "Could not convert Buffer to String: " + err,
+        exception: err,
+      };
+      return combo;
+    }
+    try {
+      combo = handlePayload(payload);
+    } catch (err) {
+      combo.error = {
+        message: "Could not handle Buffer as String: " + err,
+        exception: err,
+      };
+      return combo;
+    }
+  } else {
+    try {
+      combo.payload = encodeCOT(payload);
+    } catch (err) {
+      combo.error = {
+        message: "Could not encode TAK payload: " + err,
+        exception: err,
+        payload: payload,
+      };
+      return combo;
+    }
   }
 
   return combo;
 };
 
-module.exports = { handlePayload, cotType2SIDC };
+module.exports = { handlePayload, cotType2SIDC, encodeCOT, decodeCOT };

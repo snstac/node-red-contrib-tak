@@ -30,10 +30,16 @@ const makeTAK2WMNode = (RED) => {
     node.on("input", (msg) => {
       node.status({ fill: "green", shape: "dot", text: "Receiving" });
 	    let payload
-
-      payload = handlePayload(msg.payload);
-
-      if (payload === undefined || payload === null) {
+      
+      try { 
+        payload = handlePayload(msg.payload);
+      } catch (error) {
+        node.status({ fill: "red", shape: "dot", text: "Error" });
+        node.error(error);
+        return;
+      }
+      
+      if (typeof payload === undefined || payload === null) {
         node.status({ fill: "yellow", shape: "dot", text: "Invalid Data" });
         return;
       }
@@ -41,7 +47,9 @@ const makeTAK2WMNode = (RED) => {
       let error = payload.error;
 
       if (typeof error !== "undefined" && error !== null) {
+        node.status({ fill: "red", shape: "dot", text: "Error" });
         node.error(error);
+        return;
       } else {
         let pl = payload.payload[0].payload;
 
@@ -59,6 +67,14 @@ const makeTAK2WMNode = (RED) => {
 
         if (typeof pl.event !== "undefined" && pl.event !== null) {
           event = pl.event;
+
+          point = event.point;
+          if (typeof point !== "undefined" && point !== null) {
+            point = point._attributes;
+          } else {
+            node.error("No Point in CoT Event");
+            return;
+          }
 
           detail = event.detail;
           if (typeof detail !== "undefined" && detail !== null) {
@@ -90,7 +106,6 @@ const makeTAK2WMNode = (RED) => {
 
           cotType = event._attributes.type;
           uid = event._attributes.uid;
-          point = event.point._attributes;
 
           lastUpdate = new Date(event._attributes.time).toLocaleString();
         } else if (pl.cotEvent !== "undefined" && pl.cotEvent !== null) {
@@ -103,7 +118,7 @@ const makeTAK2WMNode = (RED) => {
 
           cotType = event.type;
           uid = event.uid;
-          point = event;
+          // point = event;
           contact = detail.contact;
           status = detail.status;
           group = detail.group;

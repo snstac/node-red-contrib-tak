@@ -38,13 +38,12 @@ const makeTAKNode = (RED) => {
       let value = RED.util.getMessageProperty(msg, node.property);
       let payload = handlePayload(value);
 
-      if (payload === undefined || payload === null) {
+      if (typeof payload === "undefined" || payload === null) {
         node.error({ message: "Undefined or null payload." });
         return;
       }
 
       let error = payload.error;
-
       if (typeof error !== "undefined" && error !== null) {
         node.error(error);
       } else {
