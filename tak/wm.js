@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /* TAK Node-RED Nodes.
 
-Copyright 2023 Sensors & Signals LLC
+Copyright Sensors & Signals LLC https://www.snstac.com/
 
 Licensed under the Apache License, Version 2.0 (the 'License');
 you may not use this file except in compliance with the License.
@@ -61,7 +61,7 @@ const makeTAK2WMNode = (RED) => {
           event = pl.event;
 
           detail = event.detail;
-          if (detail) {
+          if (typeof detail !== "undefined" && detail !== null) {
             contact = detail.contact;
             if (contact) {
               contact = contact._attributes;

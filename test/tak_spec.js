@@ -20,7 +20,9 @@ limitations under the License.
 
 var should = require("should");
 var helper = require("node-red-node-test-helper");
+
 const makeTAKNode = require("../tak/cot");
+
 const { encode, decode } = require("varint");
 const { cot, proto } = require("@vidterra/tak.js");
 

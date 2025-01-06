@@ -12,7 +12,9 @@
   "homepage": "https://github.com/snstac/node-red-contrib-tak",
   "dependencies": {
     "@vidterra/tak.js": "0.0.8",
+    "chai": "^4.5.0",
     "mocha": "^10.2.0",
+    "node-fetch": "^2.7.0",
     "node-red": "^2.0.0",
     "node-red-node-test-helper": "^0.3.0",
     "nyc": "^15.1.0",

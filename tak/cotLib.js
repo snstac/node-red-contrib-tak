@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /* TAK Node-RED Nodes.
 
-Copyright 2023 Sensors & Signals LLC
+Copyright Sensors & Signals LLC https://www.snstac.com/
 
 Licensed under the Apache License, Version 2.0 (the 'License');
 you may not use this file except in compliance with the License.
@@ -46,7 +46,10 @@ YMMV YOLO!
 */
 const TAK_BOUND = "999999";
 
-// Convert Cursor-On-Target Event 'Types' to NATO symbol identification coding (SIDC) aka 2525.
+/*
+ Convert Cursor on Target Event 'Types' to NATO symbol identification coding SIDC.
+ aka MIL-STD-2525
+ */
 let cotType2SIDC = (cotType) => {
   /* Extract the Type and Affiliation. */
   let et = cotType.split("-");
@@ -190,6 +193,8 @@ const XML_DECLARATION = {
  * @param {object} payload - Payload to encode.
  */
 const encodeCOT = (payload) => {
+  console.log("encodeCOT payload:")
+  console.log(payload)
   delete payload.error;
 
   let takproto;
@@ -199,10 +204,13 @@ const encodeCOT = (payload) => {
   if (typeof payload.cotEvent !== "undefined" && payload.cotEvent !== null) {
 
     protojson = payload;
+    // console.log("PROTOJSON")
+    // console.log(protojson)
 
+    // FIXME: We lose xmlDetail here:
     let cotJS = proto.protojs2cotjs(protojson);
 
-    // FIXME in tak.js:
+    // FIXME: Note: In tak.js.
     if (protojson.cotEvent.detail.track) {
       cotJS.event.detail.track = {
         _attributes: {
@@ -212,7 +220,7 @@ const encodeCOT = (payload) => {
       };
     }
 
-    // FIXME in tak.js:
+    // FIXME: Note: In tak.js.
     if (protojson.cotEvent.detail.precisionLocation) {
       cotJS.event.detail.precisionlocation = {
         _attributes: {
@@ -223,6 +231,8 @@ const encodeCOT = (payload) => {
     }
 
     payload = cotJS;
+    // console.log("PAYLOAD")
+    // console.log(payload)
   }
 
   if (!payload._declaration) {
@@ -231,9 +241,16 @@ const encodeCOT = (payload) => {
 
   // Plain XML
   xmlPayload = cot.js2xml(payload);
-		
+  // console.log("xmlPayload:")
+  // console.log(xmlPayload)
+
   const jsonPayload = cot.xml2js(xmlPayload);
+  console.log("jsonPayload")
+  console.log(jsonPayload)
+
   const protojs = cotjs2protojs(jsonPayload);
+  console.log("protojs")
+  console.log(protojs)
 
   takproto = proto.js2proto(protojs);
 
@@ -322,6 +339,15 @@ const cotjs2protojs = (cotjs) => {
       hae: parseFloat(cotjs.event.point._attributes.hae || TAK_BOUND),
       lat: parseFloat(cotjs.event.point._attributes.lat),
       lon: parseFloat(cotjs.event.point._attributes.lon),
+      detail: {
+        xmlDetail: "<detail><_test_>test</_test_></detail>",
+        contact: { endpoint: null, callsign: "" },
+        group: { name: "", role: "" },
+        precisionLocation: { geopointsrc: "", altsrc: "" },
+        status: { battery: 100 },
+        takv: { device: "", platform: "", os: "", version: "" },
+        track: { speed: 0.0, course: 0.0 }
+      },
     },
   };
 
@@ -420,11 +446,10 @@ const handlePayload = (payload) => {
       try {
         combo.payload = encodeCOT(payload);
       } catch (err) {
-	      throw err;
         combo.error = {
           message: "Could not encode TAK payload.",
           exception: err,
-	  payload: payload,
+	        payload: payload,
         };
 	throw err;
         // return combo;
