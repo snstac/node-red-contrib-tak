@@ -1,3 +1,9 @@
+## 4.2.2
+
+- Re-release of the 4.2.1 dependency-hygiene changes (below). No functional or
+  dependency changes — 4.2.1 never reached npm because the release job's
+  `NPM_TOKEN` had expired; publishing now uses npm trusted publishing (OIDC).
+
 ## 4.2.1
 
 - Dependency hygiene: `node-red` is now an optional `peerDependency` instead of a
