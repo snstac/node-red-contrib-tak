@@ -1,3 +1,15 @@
+## 4.2.1
+
+- Dependency hygiene: `node-red` is now an optional `peerDependency` instead of a
+  hard runtime dependency, so installing this node no longer pulls a full nested
+  copy of Node-RED (and its Node-RED-admin/npm/`js-yaml`/`multer`/`ws`/`form-data`
+  transitive tree) into the consumer's dependency graph.
+- Moved test-only tooling (`chai`, `mocha`, `nyc`, `node-red-node-test-helper`,
+  `should`) out of `dependencies` and into `devDependencies`.
+- Declared `xml2js` (`^0.6.2`) as an explicit runtime dependency — the node
+  `require()`s it directly and was previously relying on Node-RED providing it
+  transitively.
+
 ## 4.1.1
 
 - Fixes #2: TAK2WM broken in 4.1.0
